@@ -1,0 +1,333 @@
+/* =========================================================
+   PORTFOLIO CARD — HTML + CSS thuần (không framework)
+   Bảng màu: vàng chủ đạo + nền tối + thẻ trắng
+   ========================================================= */
+
+/* ---------- 1. BIẾN MÀU / KÍCH THƯỚC (sửa ở đây là đổi cả trang) ---------- */
+:root {
+  --yellow:        #ffc400;   /* màu chủ đạo            */
+  --yellow-soft:   #fff4cc;   /* nền badge nhạt         */
+  --yellow-dark:   #b98a00;   /* chữ trên nền vàng nhạt */
+
+  --bg:            #101014;   /* nền trang (đen)        */
+  --bg-2:          #1b1b22;   /* nền trang, lớp gradient*/
+  --card-bg:       #ffffff;   /* nền card (trắng)       */
+
+  --text:          #16161a;   /* chữ chính              */
+  --text-soft:     #5c5f66;   /* chữ phụ                */
+  --border:        #ecedf0;   /* viền mảnh              */
+
+  --radius:        24px;      /* bo góc card            */
+  --radius-sm:     999px;     /* bo góc badge / nút     */
+  --shadow:        0 18px 45px rgba(0, 0, 0, .35);
+  --card-width:    460px;     /* bề rộng tối đa của card*/
+}
+
+/* ---------- 2. RESET CƠ BẢN ---------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 32px 16px;
+
+  /* căn giữa card theo cả 2 chiều */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+
+  /* nền đen + vệt sáng vàng dịu để tạo tương phản */
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(255, 196, 0, .18), transparent 55%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 100%);
+  background-attachment: fixed;
+}
+
+img { display: block; max-width: 100%; }
+
+/* ---------- 3. CARD ---------- */
+.card {
+  width: 100%;
+  max-width: var(--card-width);
+  padding: 72px 32px 34px;   /* chừa chỗ phía trên cho avatar */
+  position: relative;
+
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+
+  /* vạch vàng trang trí ở mép trên */
+  border-top: 5px solid var(--yellow);
+}
+
+/* ---------- 4. AVATAR TRÒN ---------- */
+.card__avatar {
+  position: absolute;
+  top: -56px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 112px;
+  height: 112px;
+  padding: 5px;                       /* tạo vòng vàng bao quanh */
+  border-radius: 50%;
+  background: var(--yellow);
+  box-shadow: 0 10px 24px rgba(255, 196, 0, .35);
+}
+
+.card__avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;                  /* ảnh không bị méo */
+  background: var(--yellow-soft);
+  border: 3px solid var(--card-bg);
+}
+
+/* ---------- 5. TÊN & CHUYÊN NGÀNH ---------- */
+.card__header { margin-bottom: 14px; }
+
+.card__name {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -.4px;
+}
+
+.card__role {
+  margin: 6px 0 0;
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--yellow-dark);
+}
+
+.card__meta {
+  margin: 4px 0 0;
+  font-size: .8rem;
+  color: var(--text-soft);
+}
+
+/* ---------- 6. MÔ TẢ NGẮN ---------- */
+.card__bio {
+  margin: 0 0 22px;
+  font-size: .9rem;
+  color: var(--text-soft);
+}
+
+/* ---------- 7. KHỐI NỘI DUNG CHUNG (Kinh nghiệm / Học vấn / Kỹ năng) ---------- */
+.section {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  text-align: left;                    /* nội dung dài đọc dễ hơn khi canh trái */
+}
+
+.section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+/* gạch vàng nhỏ trước tiêu đề mục */
+.section__title::before {
+  content: "";
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--yellow);
+}
+
+/* ---------- 8. TIMELINE (dùng chung cho kinh nghiệm & học vấn) ---------- */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 20px;                 /* chừa chỗ cho đường kẻ + chấm tròn */
+  position: relative;
+}
+
+/* đường kẻ dọc mờ dần */
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(var(--yellow), rgba(255, 196, 0, .15));
+}
+
+.timeline__item { position: relative; }
+
+.timeline__item + .timeline__item { margin-top: 16px; }
+
+/* chấm tròn vàng đánh dấu từng mốc */
+.timeline__item::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--yellow);
+  border: 2px solid var(--card-bg);
+  box-shadow: 0 0 0 2px rgba(255, 196, 0, .25);
+}
+
+.timeline__role {
+  margin: 0;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.timeline__org {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+
+  margin: 3px 0 0;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--yellow-dark);
+}
+
+.timeline__time {
+  padding: 2px 9px;
+  font-size: .7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-soft);
+  background: #f5f6f8;
+  border-radius: var(--radius-sm);
+}
+
+.timeline__desc {
+  margin: 6px 0 0;
+  font-size: .82rem;
+  color: var(--text-soft);
+}
+
+/* ---------- 9. BADGE KỸ NĂNG ---------- */
+.skills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill {
+  padding: 6px 14px;
+  font-size: .78rem;
+  font-weight: 600;
+
+  color: var(--yellow-dark);
+  background: var(--yellow-soft);
+  border: 1px solid rgba(255, 196, 0, .45);
+  border-radius: var(--radius-sm);
+
+  transition: transform .2s ease, background .2s ease, color .2s ease;
+}
+
+.skill:hover {
+  transform: translateY(-2px);
+  background: var(--yellow);
+  color: var(--text);
+}
+
+/* ---------- 10. LIÊN KẾT MẠNG XÃ HỘI ---------- */
+.socials {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.social {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text);
+
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  transition: background .2s ease, border-color .2s ease,
+              transform .2s ease, box-shadow .2s ease;
+}
+
+.social svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.social:hover,
+.social:focus-visible {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(255, 196, 0, .4);
+  outline: none;
+}
+
+/* ---------- 11. RESPONSIVE (MOBILE) ---------- */
+@media (max-width: 430px) {
+  body    { padding: 24px 12px; }
+
+  .card   { padding: 64px 20px 28px; border-radius: 20px; }
+
+  .card__avatar { width: 96px; height: 96px; top: -48px; }
+
+  .card__name { font-size: 1.35rem; }
+  .card__bio  { font-size: .85rem; }
+
+  /* mốc thời gian xuống dòng riêng cho đỡ chật */
+  .timeline__org  { flex-direction: column; align-items: flex-start; gap: 3px; }
+  .timeline__role { font-size: .86rem; }
+
+  /* mỗi liên kết chiếm trọn 1 hàng cho dễ bấm */
+  .socials  { flex-direction: column; }
+  .social   { justify-content: center; }
+}
+
+/* ---------- 12. HỖ TRỢ NGƯỜI DÙNG TẮT HIỆU ỨNG ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

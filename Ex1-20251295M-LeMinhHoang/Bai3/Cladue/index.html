@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinguaGo — Học tiếng Anh mỗi ngày 15 phút</title>
+  <meta name="description" content="LinguaGo — ứng dụng học tiếng Anh với lộ trình cá nhân hoá, luyện phát âm bằng AI và hơn 12.000 bài học ngắn." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Bỏ qua phần điều hướng — dành cho người dùng bàn phím / screen reader -->
+  <a class="skip-link" href="#hero">Bỏ qua tới nội dung chính</a>
+
+  <!-- ==================== 1. HEADER ==================== -->
+  <header class="header">
+    <div class="container header__inner">
+
+      <!-- Logo -->
+      <a class="logo" href="#hero">
+        <span class="logo__mark" aria-hidden="true">L</span>
+        <span class="logo__text">Lingua<span>Go</span></span>
+      </a>
+
+      <!-- Checkbox điều khiển menu mobile (thuần CSS, không cần JavaScript) -->
+      <input class="nav-toggle" type="checkbox" id="nav-toggle" />
+      <label class="nav-burger" for="nav-toggle" aria-label="Mở / đóng menu">
+        <span></span><span></span><span></span>
+      </label>
+
+      <!-- Điều hướng -->
+      <nav class="nav" aria-label="Điều hướng chính">
+        <ul class="nav__list">
+          <li><a href="#features">Tính năng</a></li>
+          <li><a href="#benefits">Lợi ích</a></li>
+          <li><a href="#testimonials">Đánh giá</a></li>
+          <li><a href="#pricing">Bảng giá</a></li>
+        </ul>
+        <div class="nav__actions">
+          <a class="btn btn--ghost" href="#pricing">Đăng nhập</a>
+          <a class="btn btn--primary" href="#pricing">Dùng thử miễn phí</a>
+        </div>
+      </nav>
+
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ==================== 2. HERO ==================== -->
+    <section class="hero" id="hero">
+      <div class="container hero__inner">
+
+        <!-- Cột trái: nội dung -->
+        <div class="hero__content">
+          <p class="pill">🎧 Hơn 12.000 bài học ngắn &middot; Miễn phí 7 ngày</p>
+
+          <h1 class="hero__title">
+            Giỏi tiếng Anh chỉ với
+            <span class="hl">15 phút</span> mỗi ngày
+          </h1>
+
+          <p class="hero__desc">
+            LinguaGo xây lộ trình riêng cho từng người học, chấm phát âm bằng AI
+            và nhắc bạn ôn tập đúng lúc sắp quên. Học từ con số 0 đến giao tiếp
+            tự tin — ngay trên điện thoại.
+          </p>
+
+          <div class="hero__cta">
+            <a class="btn btn--primary btn--lg" href="#pricing">Bắt đầu miễn phí</a>
+            <a class="btn btn--outline btn--lg" href="#features">Xem tính năng</a>
+          </div>
+
+          <!-- Số liệu tạo niềm tin -->
+          <ul class="stats">
+            <li class="stat">
+              <strong class="stat__num">2,5 triệu</strong>
+              <span class="stat__label">Người học</span>
+            </li>
+            <li class="stat">
+              <strong class="stat__num">4.8/5</strong>
+              <span class="stat__label">Điểm trên App Store</span>
+            </li>
+            <li class="stat">
+              <strong class="stat__num">92%</strong>
+              <span class="stat__label">Tiến bộ sau 3 tháng</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Cột phải: mô phỏng màn hình điện thoại -->
+        <div class="hero__visual">
+          <div class="phone" role="img" aria-label="Ảnh minh hoạ màn hình ứng dụng LinguaGo">
+            <div class="phone__screen">
+
+              <div class="phone__top">
+                <span class="phone__greet">Chào Minh 👋</span>
+                <span class="phone__streak">🔥 24 ngày</span>
+              </div>
+
+              <div class="phone__card">
+                <p class="phone__label">Bài học hôm nay</p>
+                <p class="phone__lesson">Đặt phòng khách sạn</p>
+                <div class="progress"><span style="width:68%"></span></div>
+                <p class="phone__hint">68% hoàn thành &middot; còn 4 phút</p>
+              </div>
+
+              <div class="phone__card phone__card--accent">
+                <p class="phone__label">Luyện phát âm</p>
+                <p class="phone__word">&ldquo;comfortable&rdquo;</p>
+                <p class="phone__score">Độ chính xác <strong>94%</strong></p>
+              </div>
+
+              <ul class="phone__tags">
+                <li>Từ vựng</li>
+                <li>Nghe</li>
+                <li>Nói</li>
+              </ul>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 3. TÍNH NĂNG NỔI BẬT ==================== -->
+    <section class="section" id="features">
+      <div class="container">
+
+        <header class="section__head">
+          <p class="eyebrow">Tính năng</p>
+          <h2 class="section__title">Mọi thứ bạn cần để học đều nằm trong một ứng dụng</h2>
+          <p class="section__lead">
+            Không còn phải nhảy qua lại giữa app từ vựng, kênh luyện nghe và lớp giao tiếp.
+          </p>
+        </header>
+
+        <ul class="grid grid--3 features">
+
+          <li class="card feature">
+            <span class="feature__icon" aria-hidden="true">🗺️</span>
+            <h3 class="feature__title">Lộ trình cá nhân hoá</h3>
+            <p class="feature__desc">
+              Bài kiểm tra đầu vào 5 phút xác định trình độ, sau đó lộ trình tự
+              điều chỉnh theo tốc độ tiến bộ thật của bạn.
+            </p>
+          </li>
+
+          <li class="card feature">
+            <span class="feature__icon" aria-hidden="true">🎙️</span>
+            <h3 class="feature__title">Chấm phát âm bằng AI</h3>
+            <p class="feature__desc">
+              Nói vào micro và nhận phản hồi tới từng âm tiết, kèm gợi ý khẩu hình
+              để sửa lỗi ngay lập tức.
+            </p>
+          </li>
+
+          <li class="card feature">
+            <span class="feature__icon" aria-hidden="true">🔁</span>
+            <h3 class="feature__title">Ôn tập ngắt quãng</h3>
+            <p class="feature__desc">
+              Thuật toán SRS nhắc bạn ôn đúng thời điểm sắp quên, giúp ghi nhớ từ
+              vựng lâu gấp 3 lần cách học truyền thống.
+            </p>
+          </li>
+
+          <li class="card feature">
+            <span class="feature__icon" aria-hidden="true">💬</span>
+            <h3 class="feature__title">Hội thoại với gia sư AI</h3>
+            <p class="feature__desc">
+              Luyện nói 24/7 trong các tình huống thực tế: phỏng vấn, sân bay,
+              họp nhóm — không sợ bị đánh giá.
+            </p>
+          </li>
+
+          <li class="card feature">
+            <span class="feature__icon" aria-hidden="true">📊</span>
+            <h3 class="feature__title">Báo cáo tiến độ</h3>
+            <p class="feature__desc">
+              Theo dõi số từ đã thuộc, thời gian học và điểm quy đổi IELTS/TOEIC
+              theo từng tuần.
+            </p>
+          </li>
+
+          <li class="card feature">
+            <span class="feature__icon" aria-hidden="true">📥</span>
+            <h3 class="feature__title">Học ngoại tuyến</h3>
+            <p class="feature__desc">
+              Tải trước bài học để luyện tập trên máy bay hay tàu điện ngầm,
+              tiến độ tự đồng bộ khi có mạng.
+            </p>
+          </li>
+
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== 4. LỢI ÍCH ==================== -->
+    <section class="section section--alt" id="benefits">
+      <div class="container benefits">
+
+        <!-- Cột trái: nội dung lợi ích -->
+        <div class="benefits__content">
+          <p class="eyebrow">Lợi ích</p>
+          <h2 class="section__title">Vì sao người học ở lại với LinguaGo?</h2>
+          <p class="section__lead">
+            Chúng tôi thiết kế để bạn duy trì được thói quen — thứ quyết định
+            kết quả nhiều hơn bất kỳ giáo trình nào.
+          </p>
+
+          <ul class="benefit-list">
+            <li class="benefit">
+              <span class="benefit__check" aria-hidden="true">✓</span>
+              <div>
+                <h3 class="benefit__title">Tiết kiệm thời gian</h3>
+                <p class="benefit__desc">
+                  Bài học 5–15 phút vừa đủ cho giờ nghỉ trưa hoặc lúc chờ xe buýt.
+                </p>
+              </div>
+            </li>
+
+            <li class="benefit">
+              <span class="benefit__check" aria-hidden="true">✓</span>
+              <div>
+                <h3 class="benefit__title">Chi phí bằng 1/10 trung tâm</h3>
+                <p class="benefit__desc">
+                  Không phí ghi danh, không cam kết dài hạn, huỷ bất cứ lúc nào.
+                </p>
+              </div>
+            </li>
+
+            <li class="benefit">
+              <span class="benefit__check" aria-hidden="true">✓</span>
+              <div>
+                <h3 class="benefit__title">Tự tin mở miệng nói</h3>
+                <p class="benefit__desc">
+                  Luyện với AI trước, ra đời sau — 78% người học nói rằng mình bớt
+                  ngại giao tiếp chỉ sau 1 tháng.
+                </p>
+              </div>
+            </li>
+
+            <li class="benefit">
+              <span class="benefit__check" aria-hidden="true">✓</span>
+              <div>
+                <h3 class="benefit__title">Giữ được thói quen</h3>
+                <p class="benefit__desc">
+                  Chuỗi ngày học, huy hiệu và bảng xếp hạng bạn bè giúp bạn không bỏ cuộc.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Cột phải: các chỉ số nổi bật -->
+        <ul class="benefit-metrics">
+          <li class="metric">
+            <strong class="metric__num">3&times;</strong>
+            <span class="metric__label">Ghi nhớ từ vựng lâu hơn</span>
+          </li>
+          <li class="metric">
+            <strong class="metric__num">15 phút</strong>
+            <span class="metric__label">Thời lượng học mỗi ngày</span>
+          </li>
+          <li class="metric">
+            <strong class="metric__num">78%</strong>
+            <span class="metric__label">Bớt ngại nói sau 1 tháng</span>
+          </li>
+          <li class="metric">
+            <strong class="metric__num">24/7</strong>
+            <span class="metric__label">Gia sư AI luôn sẵn sàng</span>
+          </li>
+        </ul>
+
+      </div>
+    </section>
+
+    <!-- ==================== 5. ĐÁNH GIÁ NGƯỜI DÙNG ==================== -->
+    <section class="section" id="testimonials">
+      <div class="container">
+
+        <header class="section__head">
+          <p class="eyebrow">Đánh giá</p>
+          <h2 class="section__title">2,5 triệu người học đã tin dùng</h2>
+          <p class="section__lead">Một vài chia sẻ từ cộng đồng LinguaGo.</p>
+        </header>
+
+        <ul class="grid grid--3 testimonials">
+
+          <li class="card testimonial">
+            <p class="testimonial__stars" aria-label="5 trên 5 sao">★★★★★</p>
+            <blockquote class="testimonial__quote">
+              Mình học trên xe buýt mỗi sáng. Sau 4 tháng thì thuyết trình tiếng Anh
+              với khách hàng nước ngoài mà không cần viết sẵn kịch bản nữa.
+            </blockquote>
+            <div class="person">
+              <span class="person__avatar" aria-hidden="true">NT</span>
+              <span class="person__info">
+                <strong class="person__name">Nguyễn Thu Trang</strong>
+                <span class="person__role">Nhân viên kinh doanh, Hà Nội</span>
+              </span>
+            </div>
+          </li>
+
+          <li class="card testimonial">
+            <p class="testimonial__stars" aria-label="5 trên 5 sao">★★★★★</p>
+            <blockquote class="testimonial__quote">
+              Tính năng chấm phát âm là thứ mình tìm mãi không thấy ở app khác.
+              Nó chỉ rõ mình sai âm cuối chứ không báo đúng/sai chung chung.
+            </blockquote>
+            <div class="person">
+              <span class="person__avatar" aria-hidden="true">PH</span>
+              <span class="person__info">
+                <strong class="person__name">Phạm Quang Huy</strong>
+                <span class="person__role">Sinh viên năm 3, Đà Nẵng</span>
+              </span>
+            </div>
+          </li>
+
+          <li class="card testimonial">
+            <p class="testimonial__stars" aria-label="4 trên 5 sao">★★★★☆</p>
+            <blockquote class="testimonial__quote">
+              Từ 5.5 lên 7.0 IELTS trong 5 tháng, phần lớn nhờ thói quen ôn từ vựng
+              đều đặn mà ứng dụng nhắc mỗi tối.
+            </blockquote>
+            <div class="person">
+              <span class="person__avatar" aria-hidden="true">LM</span>
+              <span class="person__info">
+                <strong class="person__name">Lê Khánh My</strong>
+                <span class="person__role">Học sinh lớp 12, TP. Hồ Chí Minh</span>
+              </span>
+            </div>
+          </li>
+
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== 6. BẢNG GIÁ ==================== -->
+    <section class="section section--alt" id="pricing">
+      <div class="container">
+
+        <header class="section__head">
+          <p class="eyebrow">Bảng giá</p>
+          <h2 class="section__title">Chọn gói phù hợp với bạn</h2>
+          <p class="section__lead">
+            Mọi gói trả phí đều được dùng thử miễn phí 7 ngày và hoàn tiền trong 30 ngày.
+          </p>
+        </header>
+
+        <ul class="grid grid--3 pricing">
+
+          <!-- Gói miễn phí -->
+          <li class="card plan">
+            <h3 class="plan__name">Miễn phí</h3>
+            <p class="plan__desc">Bắt đầu làm quen với việc học mỗi ngày.</p>
+            <p class="plan__price">
+              <span class="plan__amount">0đ</span>
+              <span class="plan__period">/ tháng</span>
+            </p>
+            <ul class="plan__features">
+              <li>5 bài học mỗi ngày</li>
+              <li>1.000 từ vựng cơ bản</li>
+              <li>Theo dõi chuỗi ngày học</li>
+              <li class="is-off">Chấm phát âm bằng AI</li>
+              <li class="is-off">Học ngoại tuyến</li>
+            </ul>
+            <a class="btn btn--outline btn--block" href="#hero">Dùng ngay</a>
+          </li>
+
+          <!-- Gói phổ biến nhất -->
+          <li class="card plan plan--featured">
+            <span class="plan__badge">Phổ biến nhất</span>
+            <h3 class="plan__name">Cao cấp</h3>
+            <p class="plan__desc">Đầy đủ tính năng cho người học nghiêm túc.</p>
+            <p class="plan__price">
+              <span class="plan__amount">149.000đ</span>
+              <span class="plan__period">/ tháng</span>
+            </p>
+            <ul class="plan__features">
+              <li>Bài học không giới hạn</li>
+              <li>Toàn bộ 12.000+ bài học</li>
+              <li>Chấm phát âm bằng AI</li>
+              <li>Gia sư AI hội thoại 24/7</li>
+              <li>Học ngoại tuyến &amp; báo cáo tuần</li>
+            </ul>
+            <a class="btn btn--primary btn--block" href="#hero">Dùng thử 7 ngày</a>
+          </li>
+
+          <!-- Gói gia đình -->
+          <li class="card plan">
+            <h3 class="plan__name">Gia đình</h3>
+            <p class="plan__desc">Chia sẻ cho tối đa 6 thành viên.</p>
+            <p class="plan__price">
+              <span class="plan__amount">249.000đ</span>
+              <span class="plan__period">/ tháng</span>
+            </p>
+            <ul class="plan__features">
+              <li>Mọi quyền lợi của gói Cao cấp</li>
+              <li>6 tài khoản riêng biệt</li>
+              <li>Bảng xếp hạng gia đình</li>
+              <li>Chế độ trẻ em an toàn</li>
+              <li>Hỗ trợ ưu tiên</li>
+            </ul>
+            <a class="btn btn--outline btn--block" href="#hero">Chọn gói này</a>
+          </li>
+
+        </ul>
+
+        <p class="pricing__note">
+          Giá đã bao gồm VAT &middot; Huỷ bất cứ lúc nào &middot; Thanh toán qua Momo, VNPay, thẻ quốc tế.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== 7. FOOTER ==================== -->
+  <footer class="footer">
+    <div class="container">
+
+      <div class="footer__grid">
+
+        <!-- Cột thương hiệu -->
+        <div class="footer__brand">
+          <a class="logo logo--light" href="#hero">
+            <span class="logo__mark" aria-hidden="true">L</span>
+            <span class="logo__text">Lingua<span>Go</span></span>
+          </a>
+          <p class="footer__about">
+            Ứng dụng học tiếng Anh cho người Việt bận rộn. Học ngắn, học đều,
+            tiến bộ thật.
+          </p>
+          <nav class="socials" aria-label="Mạng xã hội">
+            <a class="social" href="#" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.99A10 10 0 0 0 22 12Z"/></svg>
+            </a>
+            <a class="social" href="#" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M23.5 6.2a3 3 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3 3 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.57V8.43L15.8 12l-6.2 3.57Z"/></svg>
+            </a>
+            <a class="social" href="#" aria-label="TikTok">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.1v12.4a2.59 2.59 0 1 1-1.83-2.48v-3.2a5.75 5.75 0 1 0 4.93 5.69V9.01a7.35 7.35 0 0 0 4.3 1.38V7.28a4.29 4.29 0 0 1-3.24-1.46Z"/></svg>
+            </a>
+          </nav>
+        </div>
+
+        <!-- Các cột liên kết -->
+        <div class="footer__col">
+          <h3 class="footer__title">Sản phẩm</h3>
+          <ul class="footer__links">
+            <li><a href="#features">Tính năng</a></li>
+            <li><a href="#pricing">Bảng giá</a></li>
+            <li><a href="#benefits">Lợi ích</a></li>
+            <li><a href="#">Ứng dụng iOS</a></li>
+            <li><a href="#">Ứng dụng Android</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3 class="footer__title">Công ty</h3>
+          <ul class="footer__links">
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Blog học tiếng Anh</a></li>
+            <li><a href="#testimonials">Câu chuyện học viên</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3 class="footer__title">Hỗ trợ</h3>
+          <ul class="footer__links">
+            <li><a href="#">Trung tâm trợ giúp</a></li>
+            <li><a href="mailto:hello@linguago.vn">hello@linguago.vn</a></li>
+            <li><a href="#">Điều khoản sử dụng</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <p>&copy; 2026 LinguaGo. Bảo lưu mọi quyền.</p>
+        <p>Made with ❤️ in Hà Nội</p>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+<!-- Ảnh đại diện tạm (silhouette). Thay bằng ảnh thật: sửa src trong index.html -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Ảnh đại diện">
+  <rect width="200" height="200" fill="#16161a"/>
+  <circle cx="100" cy="76" r="34" fill="#ffc400"/>
+  <path d="M28 190c0-40 32-64 72-64s72 24 72 64z" fill="#ffc400"/>
+</svg>

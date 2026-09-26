@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài tập Công nghệ Web</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 48px 20px;
+      background: #f5f3ee;
+      color: #29251f;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    main { width: min(760px, 100%); margin: 0 auto; }
+    h1 { margin: 0 0 10px; font-size: clamp(28px, 5vw, 42px); }
+    .intro { margin: 0 0 32px; color: #635e56; line-height: 1.6; }
+    .assignments { display: grid; gap: 16px; }
+    .card {
+      padding: 22px;
+      border: 1px solid #ddd6ca;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 3px 12px rgb(55 45 32 / 6%);
+    }
+    .card h2 { margin: 0 0 10px; font-size: 20px; }
+    .links { display: flex; flex-wrap: wrap; gap: 9px 16px; }
+    a { color: #6f4e20; font-weight: 700; text-underline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Công nghệ Web và Dịch vụ trực tuyến</h1>
+    <p class="intro">Kho bài tập môn học của Lê Minh Hoàng. Mỗi bài được tổ chức trong một thư mục riêng.</p>
+
+    <div class="assignments">
+      <section class="card">
+        <h2>Bài tập CSS — Blakletterpress</h2>
+        <div class="links">
+          <a href="./BaiTapCSS/">CSS thuần</a>
+          <a href="./BaiTapCSS/trang-tailwind.html">Tailwind CSS</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Bài tập 01</h2>
+        <div class="links"><a href="./baitap01/">Mở bài tập</a></div>
+      </section>
+
+      <section class="card">
+        <h2>Exercise 1 — 20251295M</h2>
+        <div class="links">
+          <a href="./Ex1-20251295M-LeMinhHoang/Bai2/">Bài 2</a>
+          <a href="./Ex1-20251295M-LeMinhHoang/Bai3/Cladue/">Bài 3 — Claude</a>
+          <a href="./Ex1-20251295M-LeMinhHoang/Bai3/Codex/">Bài 3 — Codex</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
+
