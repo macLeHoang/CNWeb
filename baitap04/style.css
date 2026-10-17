@@ -124,13 +124,6 @@ h1 {
   letter-spacing: -0.035em;
 }
 
-.subtitle {
-  max-width: 590px;
-  margin-bottom: 0;
-  color: var(--muted);
-  font-size: 16px;
-}
-
 .button {
   display: inline-flex;
   min-height: 45px;
@@ -609,10 +602,6 @@ footer {
     height: 45px;
     border-radius: 12px;
     font-size: 19px;
-  }
-
-  .subtitle {
-    font-size: 14px;
   }
 
   .modal-actions {

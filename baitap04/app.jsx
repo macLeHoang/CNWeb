@@ -444,7 +444,6 @@ function App() {
           <div>
             <p className="eyebrow">React CRUD Dashboard</p>
             <h1>Quản lý người dùng</h1>
-            <p className="subtitle">Tìm kiếm, thêm, chỉnh sửa và quản lý danh sách trên một giao diện.</p>
           </div>
         </div>
         <AddUser onAdd={setNewUser} />
