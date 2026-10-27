@@ -2,4 +2,8 @@
 /*.zip
 /*.pdf
 /Note.html
+**/node_modules/
+**/.env
+**/coverage/
+**/*.log
 

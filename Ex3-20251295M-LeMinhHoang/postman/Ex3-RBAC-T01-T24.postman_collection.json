@@ -1,0 +1,102 @@
+{
+  "info": {
+    "name": "Ex3 RBAC – T01–T24",
+    "description": "Chạy thư mục Setup trước, sau đó chạy T01–T24 theo thứ tự. Có thể đổi baseUrl sang backend online.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3001/api/v1" },
+    { "key": "adminEmail", "value": "gv.admin.20251295@example.test" },
+    { "key": "managerEmail", "value": "gv.manager.20251295@example.test" },
+    { "key": "auditorEmail", "value": "gv.auditor.20251295@example.test" },
+    { "key": "memberEmail", "value": "gv.member.20251295@example.test" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "managerPassword", "value": "" },
+    { "key": "auditorPassword", "value": "" },
+    { "key": "memberPassword", "value": "" },
+    { "key": "runEmail", "value": "" }
+  ],
+  "event": [{
+    "listen": "prerequest",
+    "script": { "exec": [
+      "if (!pm.collectionVariables.get('runEmail')) {",
+      "  pm.collectionVariables.set('runEmail', `postman.${Date.now()}@example.test`);",
+      "}"
+    ] }
+  }],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Login super-admin",
+          "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"grantType\": \"password\",\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"}, "url": "{{baseUrl}}/auth/tokens" },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Login admin 200', () => pm.response.to.have.status(200));","pm.collectionVariables.set('adminToken', pm.response.json().accessToken);"]}}]
+        },
+        {
+          "name": "Login user-manager",
+          "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"grantType\": \"password\",\n  \"email\": \"{{managerEmail}}\",\n  \"password\": \"{{managerPassword}}\"\n}"}, "url": "{{baseUrl}}/auth/tokens" },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Login manager 200', () => pm.response.to.have.status(200));","pm.collectionVariables.set('managerToken', pm.response.json().accessToken);"]}}]
+        },
+        {
+          "name": "Login auditor",
+          "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"grantType\": \"password\",\n  \"email\": \"{{auditorEmail}}\",\n  \"password\": \"{{auditorPassword}}\"\n}"}, "url": "{{baseUrl}}/auth/tokens" },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Login auditor 200', () => pm.response.to.have.status(200));","pm.collectionVariables.set('auditorToken', pm.response.json().accessToken);"]}}]
+        },
+        {
+          "name": "Login member",
+          "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"grantType\": \"password\",\n  \"email\": \"{{memberEmail}}\",\n  \"password\": \"{{memberPassword}}\"\n}"}, "url": "{{baseUrl}}/auth/tokens" },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Login member 200', () => pm.response.to.have.status(200));","pm.collectionVariables.set('memberToken', pm.response.json().accessToken);"]}}]
+        },
+        {
+          "name": "Resolve fixture IDs",
+          "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{adminToken}}"}], "url": "{{baseUrl}}/roles?limit=100" },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Roles loaded', () => pm.response.to.have.status(200));","const roles = Object.fromEntries(pm.response.json().data.map(r => [r.code, r.id]));","pm.collectionVariables.set('superAdminRoleId', roles['super-admin']);","pm.collectionVariables.set('managerRoleId', roles['user-manager']);","pm.collectionVariables.set('auditorRoleId', roles.auditor);","pm.collectionVariables.set('memberRoleId', roles.member);","pm.collectionVariables.set('customRoleId', roles['tro-giang']);"]}}]
+        },
+        {
+          "name": "Resolve manager ID",
+          "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{managerToken}}"}], "url": "{{baseUrl}}/me" },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Manager profile loaded', () => pm.response.to.have.status(200));","pm.collectionVariables.set('managerId', pm.response.json().id);"]}}]
+        }
+      ]
+    },
+    {
+      "name": "T01–T24",
+      "item": [
+        {"name":"T01 GET /users không token","request":{"method":"GET","url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('401 UNAUTHENTICATED',()=>{pm.response.to.have.status(401);pm.expect(pm.response.json().error.code).to.eql('UNAUTHENTICATED')})"]}}]},
+        {"name":"T02 member GET /users","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{memberToken}}"}],"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('403 FORBIDDEN',()=>{pm.response.to.have.status(403);pm.expect(pm.response.json().error.code).to.eql('FORBIDDEN')})"]}}]},
+        {"name":"T03 phân trang và sort","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{auditorToken}}"}],"url":"{{baseUrl}}/users?page=2&limit=3&sort=fullName"},"event":[{"listen":"test","script":{"exec":["pm.test('200 và meta đúng',()=>{pm.response.to.have.status(200);const m=pm.response.json().meta;pm.expect(m.page).to.eql(2);pm.expect(m.limit).to.eql(3)})"]}}]},
+        {"name":"T04 tìm kiếm và lọc","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{auditorToken}}"}],"url":"{{baseUrl}}/users?q=giảng&status=active"},"event":[{"listen":"test","script":{"exec":["pm.test('200 chỉ active',()=>{pm.response.to.have.status(200);pm.response.json().data.forEach(u=>pm.expect(u.status).to.eql('active'))})"]}}]},
+        {"name":"T05 limit không hợp lệ","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{auditorToken}}"}],"url":"{{baseUrl}}/users?limit=500"},"event":[{"listen":"test","script":{"exec":["pm.test('400 INVALID_QUERY_PARAMETER',()=>{pm.response.to.have.status(400);pm.expect(pm.response.json().error.code).to.eql('INVALID_QUERY_PARAMETER')})"]}}]},
+        {"name":"T06 tạo người dùng","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"email\": \"{{runEmail}}\",\n  \"fullName\": \"Người dùng Postman\",\n  \"password\": \"Valid@2026\"\n}"},"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('201, Location, không passwordHash',()=>{pm.response.to.have.status(201);pm.expect(pm.response.headers.get('Location')).to.exist;pm.expect(pm.response.json()).not.to.have.property('passwordHash')});","pm.collectionVariables.set('createdUserId',pm.response.json().id);"]}}]},
+        {"name":"T07 email trùng","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":\"{{runEmail}}\",\"fullName\":\"Email trùng\",\"password\":\"Valid@2026\"}"},"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('409 EMAIL_ALREADY_EXISTS',()=>{pm.response.to.have.status(409);pm.expect(pm.response.json().error.code).to.eql('EMAIL_ALREADY_EXISTS')})"]}}]},
+        {"name":"T08 mật khẩu yếu","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":\"weak.{{runEmail}}\",\"fullName\":\"Mật khẩu yếu\",\"password\":\"123\"}"},"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('400 WEAK_PASSWORD',()=>{pm.response.to.have.status(400);pm.expect(pm.response.json().error.details.some(d=>d.issue==='WEAK_PASSWORD')).to.be.true})"]}}]},
+        {"name":"T09 tạo user vượt quyền","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":\"escalate.{{runEmail}}\",\"fullName\":\"Vượt quyền\",\"password\":\"Valid@2026\",\"roleIds\":[\"{{superAdminRoleId}}\"]}"},"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('403 PRIVILEGE_ESCALATION',()=>{pm.response.to.have.status(403);pm.expect(pm.response.json().error.code).to.eql('PRIVILEGE_ESCALATION')})"]}}]},
+        {"name":"T10 PATCH một phần","request":{"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"phone\":\"+84911222333\"}"},"url":"{{baseUrl}}/users/{{createdUserId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('200 và giữ email',()=>{pm.response.to.have.status(200);const u=pm.response.json();pm.expect(u.phone).to.eql('+84911222333');pm.expect(u.email).to.eql(pm.collectionVariables.get('runEmail'))})"]}}]},
+        {"name":"T11 PATCH roles bị chặn","request":{"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"roles\":[]}"},"url":"{{baseUrl}}/users/{{createdUserId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('400 FIELD_NOT_ALLOWED',()=>{pm.response.to.have.status(400);pm.expect(pm.response.json().error.details[0].issue).to.eql('FIELD_NOT_ALLOWED')})"]}}]},
+        {"name":"T12 tự khóa","request":{"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"status\":\"locked\"}"},"url":"{{baseUrl}}/users/{{managerId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('403 SELF_ACTION_FORBIDDEN',()=>{pm.response.to.have.status(403);pm.expect(pm.response.json().error.code).to.eql('SELF_ACTION_FORBIDDEN')})"]}}]},
+        {"name":"T13 gán auditor lần 1","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"}],"url":"{{baseUrl}}/users/{{createdUserId}}/roles/{{auditorRoleId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('204 lần 1',()=>pm.response.to.have.status(204))"]}}]},
+        {"name":"T13 gán auditor lần 2","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"}],"url":"{{baseUrl}}/users/{{createdUserId}}/roles/{{auditorRoleId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('204 lần 2',()=>pm.response.to.have.status(204))"]}}]},
+        {"name":"T14 gán super-admin vượt quyền","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"}],"url":"{{baseUrl}}/users/{{createdUserId}}/roles/{{superAdminRoleId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('403 PRIVILEGE_ESCALATION',()=>{pm.response.to.have.status(403);pm.expect(pm.response.json().error.code).to.eql('PRIVILEGE_ESCALATION')})"]}}]},
+        {"name":"T15 super-admin gỡ manager","request":{"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":"{{baseUrl}}/users/{{managerId}}/roles/{{managerRoleId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('Gỡ role 204',()=>pm.response.to.have.status(204))"]}}]},
+        {"name":"T15 token cũ mất quyền ngay","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"}],"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('403 ngay lập tức',()=>pm.response.to.have.status(403))"]}}]},
+        {"name":"T16 manager không được xóa","request":{"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{managerToken}}"}],"url":"{{baseUrl}}/users/{{createdUserId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('403 FORBIDDEN',()=>{pm.response.to.have.status(403);pm.expect(pm.response.json().error.code).to.eql('FORBIDDEN')})"]}}]},
+        {"name":"T17 super-admin xóa mềm","request":{"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":"{{baseUrl}}/users/{{createdUserId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('204',()=>pm.response.to.have.status(204))"]}}]},
+        {"name":"T17 GET user đã xóa","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":"{{baseUrl}}/users/{{createdUserId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('404 sau xóa',()=>pm.response.to.have.status(404))"]}}]},
+        {"name":"T17 đăng nhập user đã xóa","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"grantType\":\"password\",\"email\":\"{{runEmail}}\",\"password\":\"Valid@2026\"}"},"url":"{{baseUrl}}/auth/tokens"},"event":[{"listen":"test","script":{"exec":["pm.test('401 sau xóa',()=>pm.response.to.have.status(401))"]}}]},
+        {"name":"T18 ObjectId sai","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":"{{baseUrl}}/users/abc"},"event":[{"listen":"test","script":{"exec":["pm.test('404 USER_NOT_FOUND',()=>{pm.response.to.have.status(404);pm.expect(pm.response.json().error.code).to.eql('USER_NOT_FOUND')})"]}}]},
+        {"name":"T19 mã role trùng","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"code\":\"member\",\"name\":\"Trùng member\",\"permissions\":[]}"},"url":"{{baseUrl}}/roles"},"event":[{"listen":"test","script":{"exec":["pm.test('409 ROLE_CODE_EXISTS',()=>{pm.response.to.have.status(409);pm.expect(pm.response.json().error.code).to.eql('ROLE_CODE_EXISTS')})"]}}]},
+        {"name":"T20 sửa quyền role hệ thống","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"permissions\":[]}"},"url":"{{baseUrl}}/roles/{{memberRoleId}}/permissions"},"event":[{"listen":"test","script":{"exec":["pm.test('409 SYSTEM_ROLE_PROTECTED',()=>{pm.response.to.have.status(409);pm.expect(pm.response.json().error.code).to.eql('SYSTEM_ROLE_PROTECTED')})"]}}]},
+        {"name":"T21 xóa role đang dùng","request":{"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":"{{baseUrl}}/roles/{{customRoleId}}"},"event":[{"listen":"test","script":{"exec":["pm.test('409 ROLE_IN_USE',()=>{pm.response.to.have.status(409);pm.expect(pm.response.json().error.code).to.eql('ROLE_IN_USE')})"]}}]},
+        {"name":"T22 quyền không tồn tại","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"permissions\":[\"users:fly\"]}"},"url":"{{baseUrl}}/roles/{{customRoleId}}/permissions"},"event":[{"listen":"test","script":{"exec":["pm.test('400 PERMISSION_NOT_FOUND',()=>{pm.response.to.have.status(400);pm.expect(pm.response.json().error.code).to.eql('PERMISSION_NOT_FOUND')})"]}}]},
+        {"name":"T23 header role giả","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{memberToken}}"},{"key":"X-User-Role","value":"admin"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":\"hack.{{runEmail}}\",\"fullName\":\"Hack\",\"password\":\"Hack@2026\"}"},"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('Vẫn 403',()=>pm.response.to.have.status(403))"]}}]},
+        {"name":"T24 JSON hỏng","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":"},"url":"{{baseUrl}}/users"},"event":[{"listen":"test","script":{"exec":["pm.test('400 MALFORMED_JSON',()=>{pm.response.to.have.status(400);pm.expect(pm.response.json().error.code).to.eql('MALFORMED_JSON')})"]}}]}
+      ]
+    },
+    {
+      "name": "Cleanup – khôi phục user-manager",
+      "request": { "method": "PUT", "header": [{"key":"Authorization","value":"Bearer {{adminToken}}"}], "url": "{{baseUrl}}/users/{{managerId}}/roles/{{managerRoleId}}" },
+      "event": [{"listen":"test","script":{"exec":["pm.test('Đã khôi phục role manager',()=>pm.response.to.have.status(204));","pm.collectionVariables.unset('runEmail');"]}}]
+    }
+  ]
+}
