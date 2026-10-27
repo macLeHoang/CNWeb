@@ -1,0 +1,30 @@
+{
+  "name": "it4409-rbac-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "REST API for the IT4409 RBAC assignment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed.js",
+    "test": "node --test --test-concurrency=1",
+    "check:frontend": "node scripts/check-frontend.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.0.0"
+  },
+  "devDependencies": {
+    "@babel/parser": "^8.0.8",
+    "mongodb-memory-server": "^10.3.0",
+    "supertest": "^7.1.4"
+  }
+}
