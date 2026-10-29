@@ -1,0 +1,46 @@
+▶ T01–T24 contract
+  ✔ T01 missing token (5.4671ms)
+  ✔ T02 member is forbidden (15.9062ms)
+  ✔ T03 paging metadata (15.6379ms)
+  ✔ T04 search and status filter (9.4633ms)
+  ✔ T05 invalid limit (8.2939ms)
+  ✔ T06 create user (86.6375ms)
+  ✔ T07 duplicate email (14.7434ms)
+  ✔ T08 weak password (11.0078ms)
+  ✔ T09 privilege escalation while creating (10.4823ms)
+  ✔ T10 partial update (14.3261ms)
+  ✔ T11 rejects roles in patch (12.8384ms)
+  ✔ T12 cannot lock self (11.9334ms)
+  ✔ T13 assigning role is idempotent (29.9526ms)
+  ✔ T14 manager cannot assign super-admin (12.4193ms)
+  ✔ T15 revoked permissions take effect immediately (23.665ms)
+  ✔ T16 manager cannot delete (4.6752ms)
+  ✔ T17 soft delete (20.2771ms)
+  ✔ T18 malformed ObjectId is 404 (5.343ms)
+  ✔ T19 duplicate role code (9.0261ms)
+  ✔ T20 protects system role permissions (6.3522ms)
+  ✔ T21 cannot delete role in use (10.5246ms)
+  ✔ T22 rejects unknown permission (8.3712ms)
+  ✔ T23 ignores client-provided role header (6.4757ms)
+  ✔ T24 malformed JSON (3.5908ms)
+✔ T01–T24 contract (1392.9282ms)
+▶ Các endpoint và hành vi bổ sung
+  ✔ JWT có sub sai vẫn trả 401 JSON (4.1794ms)
+  ✔ Bảo vệ super-admin active cuối cùng với người gọi khác (56.4739ms)
+  ✔ Email vẫn duy nhất sau xóa mềm; regex đặc biệt được escape (16.2516ms)
+  ✔ GET /me trả profile và quyền đã sắp xếp (6.8155ms)
+  ✔ token sai và tài khoản khóa trả đúng mã (8.1489ms)
+  ✔ CRUD vai trò tùy chỉnh và danh mục quyền (66.1364ms)
+  ✔ CORS preflight và endpoint không tồn tại (5.1073ms)
+✔ Các endpoint và hành vi bổ sung (164.0506ms)
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+✔ Synthetic seed has distinct emails, all required roles and student first (1.0561ms)
+✔ Seed checks all password configuration before connecting or deleting (0.5398ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3750.5655

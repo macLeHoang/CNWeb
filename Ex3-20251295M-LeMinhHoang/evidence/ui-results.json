@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-29T17:16:00.479Z",
+  "environment": "LOCAL / synthetic data",
+  "passed": [
+    "Sai mật khẩu hiển thị lỗi 401",
+    "Super-admin có đầy đủ tab và dòng của bản thân đầu tiên",
+    "Validation tại ô nhập và lỗi email trùng từ backend",
+    "Tạo/sửa/khóa/mở khóa/xóa người dùng và tải lại danh sách",
+    "Vai trò tùy chỉnh, checkbox quyền và lỗi ROLE_IN_USE",
+    "Tạo/sửa tên/thay quyền/xóa vai trò bằng giao diện",
+    "User-manager không có nút xóa; vai trò vượt quyền bị vô hiệu",
+    "Auditor thấy người dùng nhưng không có tạo, xóa hoặc tab vai trò",
+    "Member chỉ có Hồ sơ; gọi fetch POST trực tiếp bị backend chặn 403",
+    "Mobile 390px: bảng cuộn bên trong, trang không tràn ngang",
+    "Xóa token rồi gọi API quay về đăng nhập"
+  ],
+  "pageErrors": []
+}

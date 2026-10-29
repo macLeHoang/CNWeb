@@ -1,0 +1,32 @@
+{
+  "at": "2026-10-29T17:15:18.243Z",
+  "environment": "Isolated LOCAL database; synthetic data",
+  "trace": {
+    "request": "PUT /users/:userId/roles/:roleId",
+    "permissions": [
+      "permissions:read",
+      "roles:assign",
+      "roles:read",
+      "users:create",
+      "users:read",
+      "users:update"
+    ],
+    "status": 204,
+    "observation": "Temporary wrapper around actual authenticate; production file not edited"
+  },
+  "mutation": {
+    "query": "q=(((",
+    "changedExpression": "$regex: escapeRegex(keyword) -> $regex: keyword",
+    "brokenStatus": 500,
+    "actualError": "Regular expression is invalid: missing closing parenthesis",
+    "restoredStatus": 200,
+    "sourceUnchanged": true
+  },
+  "revocation": {
+    "tokenReused": true,
+    "before": 200,
+    "deleteRole": 204,
+    "after": 403,
+    "code": "FORBIDDEN"
+  }
+}
