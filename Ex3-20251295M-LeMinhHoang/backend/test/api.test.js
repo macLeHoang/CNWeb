@@ -202,6 +202,35 @@ test("T01–T24 contract", async (t) => {
 });
 
 test("Các endpoint và hành vi bổ sung", async (t) => {
+  await t.test("JWT có sub sai vẫn trả 401 JSON", async () => {
+    const jwt = require("jsonwebtoken");
+    const token = jwt.sign({ sub: "not-an-object-id" }, process.env.JWT_SECRET);
+    const response = await api.get("/api/v1/me").set(auth(token));
+    assert.equal(response.status, 401);
+    assert.equal(response.body.error.code, "INVALID_TOKEN");
+  });
+  await t.test("Bảo vệ super-admin active cuối cùng với người gọi khác", async () => {
+    roles.operator = await Role.create({ code: "operator-check", name: "Nhân sự kiểm thử", permissions: PERMISSIONS.map((permission) => permission.code) });
+    const operator = await addUser("operator@example.test", "Người kiểm thử bảo vệ", ["operator"]);
+    const token = await login(operator.email);
+    for (const response of [
+      await api.patch(`/api/v1/users/${users.admin._id}`).set(auth(token)).send({ status: "locked" }),
+      await api.delete(`/api/v1/users/${users.admin._id}`).set(auth(token)),
+      await api.delete(`/api/v1/users/${users.admin._id}/roles/${roles["super-admin"]._id}`).set(auth(token)),
+    ]) {
+      assert.equal(response.status, 409);
+      assert.equal(response.body.error.code, "LAST_SUPER_ADMIN");
+    }
+    assert.equal((await User.findById(users.admin._id)).status, "active");
+  });
+  await t.test("Email vẫn duy nhất sau xóa mềm; regex đặc biệt được escape", async () => {
+    const duplicate = await api.post("/api/v1/users").set(auth(tokens.admin)).send({ email: createdUser.email, fullName: "Không dùng lại email", password: "Valid@2026" });
+    assert.equal(duplicate.status, 409);
+    assert.equal(duplicate.body.error.code, "EMAIL_ALREADY_EXISTS");
+    const response = await api.get("/api/v1/users?q=(((").set(auth(tokens.admin));
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+  });
   await t.test("GET /me trả profile và quyền đã sắp xếp", async () => {
     const response = await api.get("/api/v1/me").set(auth(tokens.admin));
     assert.equal(response.status, 200);

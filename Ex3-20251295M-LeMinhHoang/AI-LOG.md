@@ -9,6 +9,7 @@ Tệp này là dữ liệu nguồn để khai báo trung thực tại mục 9 c�
 | 28/10/2026 | OpenAI Codex | Kiểm tra lỗi và hành vi biên | Bổ sung kiểm tra CORS, locked account, CRUD role và đồng bộ quyền sau 403 | `npm test`: 30/30; `npm run check:frontend`: JSX hợp lệ |
 | 29–30/10/2026 | OpenAI Codex | Người dùng yêu cầu tự tạo dữ liệu và hoàn thiện báo cáo | 20 hồ sơ giả lập, demo MongoDB local, sửa seed để validate trước khi xóa; báo cáo DOCX/PDF/HTML | 32 test backend; 37 assertion Newman; 11 kịch bản Chrome; bằng chứng JSON và ảnh local |
 | 30/10/2026 | OpenAI Codex | Thí nghiệm bảo mật và đối chiếu template | Wrapper log permission, route regex thử nghiệm trong bộ nhớ, thu hồi role với token cũ; giữ nguyên câu hỏi mục 8 | `evidence/experiments.json`; báo cáo ghi rõ local, thiếu deploy và phần xác nhận cá nhân |
+| 30/10/2026 | OpenAI Codex | Bổ sung regression test sau rà soát | JWT có sub sai; khóa/xóa/gỡ role của super-admin cuối cùng bằng tài khoản khác; email sau xóa mềm và query regex | Tổng cuối: 35 test backend, 37 assertion Newman, 11 kịch bản UI đều đạt |
 
 ## Nội dung cần khai báo rõ trong báo cáo
 
