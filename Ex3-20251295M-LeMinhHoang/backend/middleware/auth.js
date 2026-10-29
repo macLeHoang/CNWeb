@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const { fail } = require("../utils/http");
+const { fail, isObjectId } = require("../utils/http");
 
 async function authenticate(req, res, next) {
   const match = (req.get("Authorization") || "").match(/^Bearer\s+(.+)$/i);
@@ -14,6 +14,7 @@ async function authenticate(req, res, next) {
     return fail(res, 401, "INVALID_TOKEN", "Access token không hợp lệ.");
   }
 
+  if (!payload || typeof payload !== "object" || !isObjectId(payload.sub)) return fail(res, 401, "INVALID_TOKEN", "Access token không hợp lệ.");
   const user = await User.findById(payload.sub).populate("roles");
   if (!user || user.status !== "active") return fail(res, 401, "INVALID_TOKEN", "Phiên đăng nhập không còn hiệu lực.");
   req.user = user;

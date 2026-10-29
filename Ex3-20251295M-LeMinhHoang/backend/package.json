@@ -7,9 +7,14 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "demo": "node scripts/demo.js",
     "seed": "node seed.js",
     "test": "node --test --test-concurrency=1",
-    "check:frontend": "node scripts/check-frontend.js"
+    "check:frontend": "node scripts/check-frontend.js",
+    "verify:local": "node scripts/verify-local.js",
+    "verify:experiments": "node scripts/experiments.js",
+    "verify:backend": "node scripts/record-tests.js",
+    "report": "node scripts/build-report.js"
   },
   "engines": {
     "node": ">=20"
@@ -24,7 +29,12 @@
   },
   "devDependencies": {
     "@babel/parser": "^8.0.8",
+    "docx": "^9.15.0",
+    "jszip": "^3.10.2",
     "mongodb-memory-server": "^10.3.0",
+    "newman": "^6.2.3",
+    "playwright": "^1.64.1",
+    "prettier": "^3.9.10",
     "supertest": "^7.1.4"
   }
 }
