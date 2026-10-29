@@ -7,6 +7,8 @@ Tệp này là dữ liệu nguồn để khai báo trung thực tại mục 9 c�
 | 27–28/10/2026 | OpenAI Codex | Đọc đề, phân rã yêu cầu và lập kế hoạch | Checklist backend, frontend, Postman, deploy và báo cáo | Đối chiếu trực tiếp PDF 44 trang và template DOCX |
 | 27–28/10/2026 | OpenAI Codex | Hỗ trợ tạo khung triển khai Fullstack RBAC | Models, middleware, 18 route, frontend React CDN, seed và Postman collection | Chạy test tích hợp T01–T24 và kiểm tra từng contract API |
 | 28/10/2026 | OpenAI Codex | Kiểm tra lỗi và hành vi biên | Bổ sung kiểm tra CORS, locked account, CRUD role và đồng bộ quyền sau 403 | `npm test`: 30/30; `npm run check:frontend`: JSX hợp lệ |
+| 29–30/10/2026 | OpenAI Codex | Người dùng yêu cầu tự tạo dữ liệu và hoàn thiện báo cáo | 20 hồ sơ giả lập, demo MongoDB local, sửa seed để validate trước khi xóa; báo cáo DOCX/PDF/HTML | 32 test backend; 37 assertion Newman; 11 kịch bản Chrome; bằng chứng JSON và ảnh local |
+| 30/10/2026 | OpenAI Codex | Thí nghiệm bảo mật và đối chiếu template | Wrapper log permission, route regex thử nghiệm trong bộ nhớ, thu hồi role với token cũ; giữ nguyên câu hỏi mục 8 | `evidence/experiments.json`; báo cáo ghi rõ local, thiếu deploy và phần xác nhận cá nhân |
 
 ## Nội dung cần khai báo rõ trong báo cáo
 

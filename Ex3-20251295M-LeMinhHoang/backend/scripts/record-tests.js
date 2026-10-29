@@ -1,0 +1,14 @@
+const fs = require("node:fs");
+const path = require("node:path");
+const { execFileSync } = require("node:child_process");
+const cwd = path.resolve(__dirname, "..");
+const folder = path.resolve(cwd, "../evidence");
+fs.mkdirSync(folder, { recursive: true });
+const output = execFileSync(process.execPath, ["--test", "--test-concurrency=1"], { cwd, encoding: "utf8" });
+fs.writeFileSync(path.join(folder, "backend-tests.txt"), output);
+const total = Number(output.match(/(?:ℹ |# )tests (\d+)/)?.[1]);
+const failed = Number(output.match(/(?:ℹ |# )fail (\d+)/)?.[1]);
+if (!total || failed !== 0) throw new Error("Backend verification did not pass");
+execFileSync(process.execPath, ["scripts/check-frontend.js"], { cwd, stdio: "inherit" });
+fs.writeFileSync(path.join(folder, "backend-results.json"), JSON.stringify({ at: new Date().toISOString(), total, failed, jsxSyntaxValid: true }, null, 2));
+console.log(`Backend tests recorded: ${total} passed, ${failed} failed.`);
