@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-30T15:20:47.699Z",
+  "environment": "ONLINE / synthetic data",
+  "url": "https://maclehoang.github.io/CNWeb/Ex3-20251295M-LeMinhHoang/frontend/",
+  "apiBase": "https://ex3-rbac-20251295m.onrender.com/api/v1",
+  "viewport": {
+    "width": 1440,
+    "height": 1050
+  },
+  "capture": "Playwright Chrome viewport",
+  "windowFilename": "S06-online-member-window.png",
+  "windowCapture": "Native PrintWindow of the exact Chrome PID launched for QA; includes real browser chrome; no personal browser profiles used"
+}

@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-30T15:22:59.547Z",
+  "source": "Read-only MongoDB driver queries over TLS to the existing Atlas database",
+  "database": "it4409_rbac",
+  "counts": {
+    "users": 28,
+    "roles": 5,
+    "permissions": 10
+  },
+  "activeUsers": 25,
+  "softDeletedUsers": 3,
+  "sample": {
+    "passwordHashPresent": true,
+    "bcryptFormat": true,
+    "passwordHash": "[redacted]",
+    "roleValueTypes": [
+      "ObjectId"
+    ]
+  },
+  "note": "Seed initially created 25 users. QA created temporary users subsequently soft-deleted; failed QA role was removed through its exact code without resetting data."
+}

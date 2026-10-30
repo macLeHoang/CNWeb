@@ -1,0 +1,420 @@
+{
+  "at": "2026-10-30T15:11:51.176Z",
+  "environment": "ONLINE / synthetic data",
+  "baseUrl": "https://ex3-rbac-20251295m.onrender.com/api/v1",
+  "requests": {
+    "total": 37,
+    "pending": 0,
+    "failed": 0
+  },
+  "assertions": {
+    "total": 37,
+    "pending": 0,
+    "failed": 0
+  },
+  "failures": [],
+  "executions": [
+    {
+      "name": "Login super-admin",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Login admin 200",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Login user-manager",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Login manager 200",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Login auditor",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Login auditor 200",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Login member",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Login member 200",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Resolve fixture IDs",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Roles loaded",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Resolve manager ID",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Manager profile loaded",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T01 GET /users không token",
+      "status": 401,
+      "code": "UNAUTHENTICATED",
+      "assertions": [
+        {
+          "name": "401 UNAUTHENTICATED",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T02 member GET /users",
+      "status": 403,
+      "code": "FORBIDDEN",
+      "assertions": [
+        {
+          "name": "403 FORBIDDEN",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T03 phân trang và sort",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "200 và meta đúng",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T04 tìm kiếm và lọc",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "200 và chỉ bản ghi khớp",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T05 limit không hợp lệ",
+      "status": 400,
+      "code": "INVALID_QUERY_PARAMETER",
+      "issues": [
+        "OUT_OF_RANGE"
+      ],
+      "assertions": [
+        {
+          "name": "400 INVALID_QUERY_PARAMETER",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T06 tạo người dùng",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "201, Location, không passwordHash",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T07 email trùng",
+      "status": 409,
+      "code": "EMAIL_ALREADY_EXISTS",
+      "assertions": [
+        {
+          "name": "409 EMAIL_ALREADY_EXISTS",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T08 mật khẩu yếu",
+      "status": 400,
+      "code": "VALIDATION_ERROR",
+      "issues": [
+        "WEAK_PASSWORD"
+      ],
+      "assertions": [
+        {
+          "name": "400 WEAK_PASSWORD",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T09 tạo user vượt quyền",
+      "status": 403,
+      "code": "PRIVILEGE_ESCALATION",
+      "assertions": [
+        {
+          "name": "403 PRIVILEGE_ESCALATION",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T10 PATCH một phần",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "200 và giữ email",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T11 PATCH roles bị chặn",
+      "status": 400,
+      "code": "VALIDATION_ERROR",
+      "issues": [
+        "FIELD_NOT_ALLOWED"
+      ],
+      "assertions": [
+        {
+          "name": "400 FIELD_NOT_ALLOWED",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T12 tự khóa",
+      "status": 403,
+      "code": "SELF_ACTION_FORBIDDEN",
+      "assertions": [
+        {
+          "name": "403 SELF_ACTION_FORBIDDEN",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T13 gán auditor lần 1",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "204 lần 1",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T13 gán auditor lần 2",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "204 lần 2",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T13 kiểm tra không trùng role",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "200 và auditor chỉ xuất hiện một lần",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T14 gán super-admin vượt quyền",
+      "status": 403,
+      "code": "PRIVILEGE_ESCALATION",
+      "assertions": [
+        {
+          "name": "403 PRIVILEGE_ESCALATION",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T15 super-admin gỡ manager",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Gỡ role 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T15 token cũ mất quyền ngay",
+      "status": 403,
+      "code": "FORBIDDEN",
+      "assertions": [
+        {
+          "name": "403 ngay lập tức",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T15 khôi phục role trước T16",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "204 khôi phục manager",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T16 manager không được xóa",
+      "status": 403,
+      "code": "FORBIDDEN",
+      "assertions": [
+        {
+          "name": "403 FORBIDDEN",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T17 super-admin xóa mềm",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T17 GET user đã xóa",
+      "status": 404,
+      "code": "USER_NOT_FOUND",
+      "assertions": [
+        {
+          "name": "404 sau xóa",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T17 đăng nhập user đã xóa",
+      "status": 401,
+      "code": "INVALID_CREDENTIALS",
+      "assertions": [
+        {
+          "name": "401 sau xóa",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T18 ObjectId sai",
+      "status": 404,
+      "code": "USER_NOT_FOUND",
+      "assertions": [
+        {
+          "name": "404 USER_NOT_FOUND",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T19 mã role trùng",
+      "status": 409,
+      "code": "ROLE_CODE_EXISTS",
+      "assertions": [
+        {
+          "name": "409 ROLE_CODE_EXISTS",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T20 sửa quyền role hệ thống",
+      "status": 409,
+      "code": "SYSTEM_ROLE_PROTECTED",
+      "assertions": [
+        {
+          "name": "409 SYSTEM_ROLE_PROTECTED",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T21 xóa role đang dùng",
+      "status": 409,
+      "code": "ROLE_IN_USE",
+      "assertions": [
+        {
+          "name": "409 ROLE_IN_USE",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T22 quyền không tồn tại",
+      "status": 400,
+      "code": "PERMISSION_NOT_FOUND",
+      "issues": [
+        "NOT_FOUND"
+      ],
+      "assertions": [
+        {
+          "name": "400 PERMISSION_NOT_FOUND",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T23 header role giả",
+      "status": 403,
+      "code": "FORBIDDEN",
+      "assertions": [
+        {
+          "name": "Vẫn 403",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "T24 JSON hỏng",
+      "status": 400,
+      "code": "MALFORMED_JSON",
+      "assertions": [
+        {
+          "name": "400 MALFORMED_JSON",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "Cleanup – khôi phục user-manager",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Đã khôi phục role manager",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-30T15:06:02.638Z",
+  "database": "it4409_rbac",
+  "before": {
+    "users": 0,
+    "roles": 0,
+    "permissions": 0
+  },
+  "seeded": {
+    "permissions": 10,
+    "roles": 5,
+    "users": 25,
+    "synthetic": true
+  },
+  "reset": false,
+  "credentialsPublic": false
+}

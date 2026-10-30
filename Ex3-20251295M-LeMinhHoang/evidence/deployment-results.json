@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-10-30T15:24:13.596Z",
+  "source": "Render and MongoDB Atlas official plugin responses; no dashboard screenshots",
+  "inventory": {
+    "renderBeforeCreate": "No services returned in three list_services requests",
+    "atlasProjectReused": true,
+    "atlasClusterReused": true
+  },
+  "render": {
+    "workspaceId": "tea-dbiab9gae00c73blk3cg",
+    "serviceId": "srv-dbib532fngtc73cqepf0",
+    "name": "ex3-rbac-20251295m",
+    "url": "https://ex3-rbac-20251295m.onrender.com",
+    "plan": "free",
+    "region": "singapore",
+    "rootDir": "",
+    "commands": {
+      "buildCommand": "cd Ex3-20251295M-LeMinhHoang/backend && npm ci --omit=dev",
+      "startCommand": "cd Ex3-20251295M-LeMinhHoang/backend && npm start"
+    },
+    "deploy": {
+      "commit": {
+        "createdAt": "2026-10-30T14:33:45Z",
+        "id": "e90cef4c330c89d53c3082ec43ef72d6af913054",
+        "message": "Update report with verified GitHub publication and continuation state"
+      },
+      "createdAt": "2026-10-30T15:09:03.801402Z",
+      "finishedAt": "2026-10-30T15:09:42.37901Z",
+      "id": "dep-dbib63qjnfac73darvn0",
+      "startedAt": "2026-10-30T15:09:03.794739Z",
+      "status": "live",
+      "trigger": "api",
+      "updatedAt": "2026-10-30T15:10:11.349603Z"
+    }
+  },
+  "atlas": {
+    "projectId": "6ae4a6a7b12851a5aca399ea",
+    "project": "CNWeb-RBAC",
+    "cluster": "rbac-cluster",
+    "instanceType": "FREE",
+    "region": "AP_SOUTHEAST_1",
+    "state": "IDLE",
+    "mongoDBVersion": "8.0.34",
+    "database": "it4409_rbac",
+    "databaseUser": "ex3-render-20251295m",
+    "userRole": "readWrite",
+    "userScope": "rbac-cluster",
+    "outboundCidrs": [
+      "74.220.52.0/24",
+      "74.220.60.0/24"
+    ],
+    "outboundSource": "Copied by owner from the Render service Connect > Outbound tab",
+    "accessListEntries": 3
+  },
+  "incidents": [
+    "Atlas remote-atlas-connect plugin returned Internal error. Used a dedicated readWrite user and URI stored privately in .env; existing project/cluster and original users were preserved.",
+    "First Render deploy dep-dbib542fngtc73cqer20 failed at 2026-10-30T15:08:01Z: Atlas rejected the Render outbound address. Exact runtime error is saved in render-initial-failure.json. Added only 74.220.52.0/24 and 74.220.60.0/24 supplied by the owner; preserved the existing development /32; redeployed the same service.",
+    "First online Chrome attempt timed out while checking users:read after editing a new role. Network evidence showed no PATCH/PUT was sent. Fixed RolesPage.saved so controls remain hidden until /me finishes and triggers one list reload; second UI run completed all 11 scenarios. Kept the first attempt and cleanup evidence in evidence/online-attempt-1."
+  ],
+  "seed": {
+    "at": "2026-10-30T15:06:02.638Z",
+    "before": {
+      "users": 0,
+      "roles": 0,
+      "permissions": 0
+    },
+    "seeded": {
+      "users": 25,
+      "roles": 5,
+      "permissions": 10,
+      "synthetic": true
+    },
+    "reset": false
+  },
+  "finalRenderServiceCount": 1
+}

@@ -1,6 +1,9 @@
 {
-  "at": "2026-10-29T17:16:00.479Z",
+  "at": "2026-10-30T15:05:57.870Z",
   "environment": "LOCAL / synthetic data",
+  "frontendUrl": "http://127.0.0.1:5500/",
+  "apiBase": "http://127.0.0.1:3001/api/v1",
+  "completed": true,
   "passed": [
     "Sai mật khẩu hiển thị lỗi 401",
     "Super-admin có đầy đủ tab và dòng của bản thân đầu tiên",

@@ -1,0 +1,31 @@
+{
+  "environment": "ONLINE / synthetic data",
+  "source": "Node fetch; single samples, not DevTools timing or a cold-start measurement",
+  "origin": "https://maclehoang.github.io",
+  "measurements": [
+    {
+      "at": "2026-10-30T15:20:53.599Z",
+      "url": "/users?page=1&limit=10",
+      "status": 200,
+      "ms": 221.21,
+      "bytes": 3410
+    },
+    {
+      "at": "2026-10-30T15:20:53.751Z",
+      "url": "/users?page=1&limit=100",
+      "status": 200,
+      "ms": 151.89,
+      "bytes": 8419
+    }
+  ],
+  "preflight": {
+    "status": 204,
+    "headers": {
+      "access-control-allow-headers": "Authorization,Content-Type",
+      "access-control-allow-methods": "GET,POST,PUT,PATCH,DELETE",
+      "access-control-allow-origin": "https://maclehoang.github.io",
+      "access-control-expose-headers": "Location"
+    }
+  },
+  "authorizationExample": "Bearer [redacted]"
+}

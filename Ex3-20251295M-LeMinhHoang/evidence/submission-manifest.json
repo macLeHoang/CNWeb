@@ -1,0 +1,13 @@
+{
+  "filename": "Ex3-20251295M-LeMinhHoang-Submission.zip",
+  "files": 141,
+  "bytes": 15340126,
+  "sha256": "6bc0ff9f7850d1e74be169c5049400dd221a66c3f195213c22366ec3bc8a421d",
+  "excluded": [
+    "node_modules",
+    ".env",
+    ".runtime",
+    "coverage"
+  ],
+  "status": "ONLINE verified; remaining report requirements are documented honestly"
+}

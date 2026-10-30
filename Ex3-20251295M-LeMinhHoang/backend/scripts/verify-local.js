@@ -3,6 +3,7 @@ const path = require("node:path");
 const assert = require("node:assert/strict");
 const newman = require("newman");
 const { chromium } = require("playwright");
+const { execFileSync } = require("node:child_process");
 require("dotenv").config({ quiet: true });
 
 const root = path.resolve(__dirname, "../..");
@@ -49,7 +50,9 @@ async function loginApi(email) {
 }
 
 async function runBrowser() {
-  const browser = await chromium.launch({ channel: "chrome", headless: true });
+  const windowMode = process.env.VERIFY_WINDOW_SCREENSHOTS === "1";
+  const server = windowMode ? await chromium.launchServer({ channel: "chrome", headless: false, args: ["--window-size=1460,1180"] }) : null;
+  const browser = server ? await chromium.connect(server.wsEndpoint()) : await chromium.launch({ channel: "chrome", headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } });
   const page = await context.newPage();
   page.setDefaultTimeout(60000);
@@ -72,7 +75,12 @@ async function runBrowser() {
   const shot = async (name) => {
     const filename = `${online ? name.replace("-local", "-online") : name}.png`;
     await page.screenshot({ path: path.join(evidence, filename), fullPage: true });
-    write(`${filename}.json`, { at: new Date().toISOString(), environment, url: page.url(), apiBase: base, viewport: page.viewportSize(), capture: "Playwright Chrome viewport; browser address bar and DevTools are not included" });
+    let windowFilename;
+    if (server) {
+      windowFilename = filename.replace(/\.png$/, "-window.png");
+      execFileSync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path.join(__dirname, "capture-owned-browser.ps1"), "-BrowserProcessId", String(server.process().pid), "-OutputPath", path.join(evidence, windowFilename)]);
+    }
+    write(`${filename}.json`, { at: new Date().toISOString(), environment, url: page.url(), apiBase: base, viewport: page.viewportSize(), capture: "Playwright Chrome viewport", windowFilename, windowCapture: server ? "Native PrintWindow of the exact Chrome PID launched for QA; includes real browser chrome; no personal browser profiles used" : undefined });
   };
   const login = async (email) => {
     await page.goto(frontendUrl);
@@ -205,6 +213,7 @@ async function runBrowser() {
     write("ui-results.json", { at: new Date().toISOString(), environment, frontendUrl, apiBase: base, completed, passed: cases, pageErrors: failures });
     write("browser-network-results.json", { at: new Date().toISOString(), environment, source: "Chrome DevTools Protocol Network events; cache disabled; no request bodies or credentials saved", requests: network });
     await browser.close();
+    if (server) await server.close();
   }
 }
 
@@ -224,5 +233,5 @@ async function measure() {
   write("network-results.json", { environment, source: "Node fetch; single samples, not DevTools timing or a cold-start measurement", origin, measurements: data, preflight: { status: preflight.status, headers: Object.fromEntries([...preflight.headers].filter(([key]) => key.startsWith("access-control"))) }, authorizationExample: "Bearer [redacted]" });
 }
 
-async function main() { await runCollection(); await runBrowser(); await measure(); console.log("Browser and network evidence collected."); }
+async function main() { if (process.env.VERIFY_BROWSER_ONLY !== "1") await runCollection(); await runBrowser(); await measure(); console.log("Browser and network evidence collected."); }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

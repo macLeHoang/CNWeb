@@ -1,18 +1,20 @@
 {
-  "environment": "LOCAL; measurements via Node fetch, not DevTools",
+  "environment": "LOCAL / synthetic data",
+  "source": "Node fetch; single samples, not DevTools timing or a cold-start measurement",
+  "origin": "http://127.0.0.1:5500",
   "measurements": [
     {
-      "at": "2026-10-29T17:16:00.756Z",
+      "at": "2026-10-30T15:05:58.227Z",
       "url": "/users?page=1&limit=10",
       "status": 200,
-      "ms": 10.5,
+      "ms": 12.63,
       "bytes": 3410
     },
     {
-      "at": "2026-10-29T17:16:00.767Z",
+      "at": "2026-10-30T15:05:58.242Z",
       "url": "/users?page=1&limit=100",
       "status": 200,
-      "ms": 10.59,
+      "ms": 15.25,
       "bytes": 8419
     }
   ],
@@ -25,5 +27,5 @@
       "access-control-expose-headers": "Location"
     }
   },
-  "authorizationExample": "Bearer eyJhbGciOi… [redacted]"
+  "authorizationExample": "Bearer [redacted]"
 }

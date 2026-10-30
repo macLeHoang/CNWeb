@@ -7,7 +7,7 @@ async function main() {
   const root = path.resolve(__dirname, "../..");
   const zip = new JSZip();
   const included = [];
-  const allowed = /\.(?:js|json|html|css|md|yaml|txt|pdf|docx|png)$/i;
+  const allowed = /\.(?:js|json|html|css|md|yaml|txt|pdf|docx|png|ps1)$/i;
   function visit(folder) {
     for (const item of fs.readdirSync(folder, { withFileTypes: true })) {
       if (["node_modules", ".runtime", ".git", "coverage"].includes(item.name)) continue;

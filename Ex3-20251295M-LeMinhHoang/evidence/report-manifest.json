@@ -1,9 +1,105 @@
 {
-  "generatedAt": "2026-10-30T14:33:11.558Z",
-  "sourceCommit": "6850ce3e3b68680dcc34142f1973f505d8b270e4",
+  "generatedAt": "2026-10-30T15:24:46.752Z",
+  "sourceCommit": "65507de908ebb6f6ee8357f798dc1cc1506a691e",
   "contentPages": 25,
+  "physicalPdfPages": 29,
+  "pdfTableOfContents": [
+    {
+      "title": "1. Thông tin nộp bài",
+      "page": 3
+    },
+    {
+      "title": "2. Tổng quan kết quả",
+      "page": 4
+    },
+    {
+      "title": "3. Quá trình phát triển",
+      "page": 5
+    },
+    {
+      "title": "4. Kiến trúc và thiết kế đã hiện thực",
+      "page": 6
+    },
+    {
+      "title": "4.3. Bản đồ endpoint → mã nguồn",
+      "page": 7
+    },
+    {
+      "title": "5. Triển khai online",
+      "page": 8
+    },
+    {
+      "title": "5.4. Sự cố khi triển khai",
+      "page": 9
+    },
+    {
+      "title": "6. Minh họa kết quả",
+      "page": 10
+    },
+    {
+      "title": "6.2. Hiển thị theo quyền",
+      "page": 12
+    },
+    {
+      "title": "6.3. Quản lý người dùng",
+      "page": 14
+    },
+    {
+      "title": "6.3. Quản lý người dùng – gán vai trò",
+      "page": 16
+    },
+    {
+      "title": "6.4. Quản lý vai trò",
+      "page": 17
+    },
+    {
+      "title": "6.5. Kỹ thuật",
+      "page": 19
+    },
+    {
+      "title": "7. Kiểm thử",
+      "page": 20
+    },
+    {
+      "title": "7.2. Các test chưa đạt",
+      "page": 21
+    },
+    {
+      "title": "8. Phân tích và giải thích",
+      "page": 22
+    },
+    {
+      "title": "8. Phân tích và giải thích – Câu 2–3",
+      "page": 23
+    },
+    {
+      "title": "8. Phân tích và giải thích – Câu 4",
+      "page": 24
+    },
+    {
+      "title": "8. Phân tích và giải thích – Câu 5",
+      "page": 25
+    },
+    {
+      "title": "8. Phân tích và giải thích – Câu 6–8",
+      "page": 26
+    },
+    {
+      "title": "8. Phân tích và giải thích – Câu 9–10",
+      "page": 27
+    },
+    {
+      "title": "9. Khai báo sử dụng AI",
+      "page": 28
+    },
+    {
+      "title": "10. Tự đánh giá và bài học",
+      "page": 29
+    }
+  ],
+  "environment": "ONLINE",
   "syntheticData": true,
-  "deploymentVerified": false,
+  "deploymentVerified": true,
   "files": [
     "Ex3-RBAC-20251295M-LeMinhHoang.docx",
     "Ex3-RBAC-20251295M-LeMinhHoang.pdf",

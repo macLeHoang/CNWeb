@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-30T15:05:51.179Z",
+  "environment": "LOCAL / synthetic data",
+  "url": "http://127.0.0.1:5500/",
+  "apiBase": "http://127.0.0.1:3001/api/v1",
+  "viewport": {
+    "width": 1440,
+    "height": 1050
+  },
+  "capture": "Playwright Chrome viewport; browser address bar and DevTools are not included"
+}

@@ -53,13 +53,13 @@ Tài nguyên đã được kiểm kê trước khi triển khai: Atlas project `
 
 - URI riêng nằm trong `backend/.env`; các mật khẩu kiểm thử/JWT nằm trong `backend/.runtime/online.env`. Cả hai đều bị Git và script đóng gói loại bỏ.
 - `node scripts/prepare-online.js --check` kiểm kê database chỉ đọc. Chỉ seed khi cả ba collection trống; script không reset hoặc đổi mật khẩu dữ liệu đã tồn tại.
-- `npm.cmd run verify:online` nhận URL và mật khẩu từ `.runtime/online.env`, chạy Newman và Chrome trên HTTPS; lưu dưới `evidence/online/`.
+- `npm.cmd run verify:online` nhận URL và mật khẩu từ `.runtime/online.env`, chạy Newman và Chrome trên HTTPS; lưu dưới `evidence/online/`. Trên Windows, đặt `VERIFY_WINDOW_SCREENSHOTS=1` để chụp nguyên cửa sổ Chrome QA với thanh URL thật bằng PrintWindow theo đúng PID do runner mở. `VERIFY_BROWSER_ONLY=1` chỉ chạy lại browser và phép đo, giữ kết quả Newman trước đó.
 - `node -r dotenv/config scripts/verify-publishing.js dotenv_config_path=.runtime/online.env` xác minh Pages/API và trạng thái CI thực.
 - Mật khẩu tài khoản chấm được cấp riêng trong `backend/.runtime/grader-access.md`; chủ bài chuyển riêng cho giảng viên, không commit hoặc đưa vào báo cáo công khai.
 
 ## Báo cáo
 
-Mở `Ex3-RBAC-20251295M-LeMinhHoang.docx` hoặc `.pdf` ở thư mục Ex3. HTML cùng tên tự chứa ảnh. Báo cáo giữ cấu trúc mục 1–10 và câu hỏi mục 8. Trạng thái online chỉ được bật sau khi Newman và browser online thành công; xem `evidence/report-manifest.json`. Mục lục PDF được đối chiếu với trang thực bằng `pdftotext` (cần cài và có trong PATH; có thể chỉ định biến `PDFTOTEXT`). Ảnh viewport không có thanh địa chỉ/DevTools; metadata JSON không được coi là ảnh dashboard. Thông tin lớp/giảng viên và xác nhận trải nghiệm cá nhân phải do sinh viên bổ sung.
+Mở `Ex3-RBAC-20251295M-LeMinhHoang.docx` hoặc `.pdf` ở thư mục Ex3. HTML cùng tên tự chứa ảnh. Bản online hiện có 29 trang PDF, giữ cấu trúc mục 1–10 và câu hỏi mục 8. Newman đạt 37 assertions, Chrome đạt 11 kịch bản; xem `evidence/report-manifest.json`. Mục lục PDF được đối chiếu với trang thực bằng `pdftotext` (cần cài và có trong PATH; có thể chỉ định biến `PDFTOTEXT`). Ảnh hậu tố `window` chứa thanh URL thật; ảnh viewport gốc cũng được giữ. Metadata JSON không được coi là ảnh dashboard/DevTools. Lớp, giảng viên và email sinh viên đã được chủ bài cung cấp; nhận xét cá nhân và chữ ký vẫn cần sinh viên tự xác nhận. Các khung ảnh công cụ còn thiếu được ghi rõ trong báo cáo.
 
 `npm.cmd run package:submission` tạo ZIP hậu tố `Submission` khi API online đã được xác minh, hoặc `Local` nếu chưa. ZIP gồm source, lockfile, `.env.example`, Postman, báo cáo và bằng chứng; loại `node_modules`, `.env`, `.runtime`, database local và cache. SHA-256 được ghi trong `evidence/submission-manifest.json` bên ngoài ZIP.
 

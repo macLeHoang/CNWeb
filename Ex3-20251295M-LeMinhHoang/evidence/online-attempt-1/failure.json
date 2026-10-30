@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-30T15:13:06.187Z",
+  "phase": "Chrome online",
+  "completed": false,
+  "error": "locator.waitFor: Timeout 60000ms exceeded while waiting for users:read in ui-role-1793373125148",
+  "observed": "POST /roles returned 201, but no PATCH /roles/:id or PUT /roles/:id/permissions was sent before the dialog disappeared.",
+  "diagnosis": "RolesPage.saved loaded the list before awaiting reloadMe. The subsequent me change triggered another load, hiding and unmounting a newly opened edit dialog.",
+  "fix": "Keep loading true after save; refresh /me first and let its state change trigger one role list reload. Verify PATCH and PUT responses explicitly."
+}

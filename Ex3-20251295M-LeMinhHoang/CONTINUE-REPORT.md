@@ -1,35 +1,37 @@
-# Tiếp tục hoàn thiện báo cáo Ex3
+# Trạng thái Ex3 sau triển khai online – 30/10/2026
 
-Người dùng đã yêu cầu thực hiện toàn bộ phần bắt buộc và hồ sơ nộp bài, đã cho phép tạo dữ liệu giả lập và triển khai GitHub Pages + Render + MongoDB Atlas. Không chuyển sang stack hoặc host khác. Không phát sinh chi phí nếu chưa được người dùng chấp thuận.
+Người dùng yêu cầu hoàn thiện Ex3 trên GitHub Pages + Render + MongoDB Atlas, cho phép dữ liệu giả lập, không tạo tài nguyên trùng và không phát sinh chi phí khi chưa chấp thuận. Giữ nguyên thay đổi Ex1/Ex2 của người dùng.
 
-## Trạng thái đã xác minh
+## Đã kiểm chứng
 
-- Repo: https://github.com/macLeHoang/CNWeb, nhánh main. Commit đã push: 6850ce3e3b68680dcc34142f1973f505d8b270e4.
-- Backend đủ 18 endpoint; 36 backend tests đạt; Newman 37 assertions đạt; Chrome UI 11 kịch bản đạt.
-- GitHub Actions Ex3 thành công: https://github.com/macLeHoang/CNWeb/actions/runs/41065593328.
-- GitHub Pages thành công và HTTP 200: https://maclehoang.github.io/CNWeb/Ex3-20251295M-LeMinhHoang/frontend/.
-- Frontend online vẫn có API_BASE=http://localhost:3001/api/v1; chưa có backend online được xác minh.
-- 25 tài khoản seed; 20 hồ sơ bạn học là giả lập, dùng example.test. Không được khai thành dữ liệu người thật.
-- Báo cáo DOCX/PDF/HTML cùng tên Ex3-RBAC-20251295M-LeMinhHoang; bản trước có 25 trang PDF, cần cập nhật sau triển khai.
-- Render và MongoDB Atlas đã được danh mục plugin xác nhận installed=true ở lần kiểm tra cuối. Tuy nhiên, phiên hội thoại cũ không có tool Render/Atlas và không có tool_search để nạp chúng. Cần phiên mới để dùng plugin đã cài; không yêu cầu cài lại.
+- Repo: https://github.com/macLeHoang/CNWeb, main. Commit frontend đã kiểm thử: 65507de908ebb6f6ee8357f798dc1cc1506a691e. Các commit hồ sơ tiếp theo có thể mới hơn; dùng git log để kiểm tra, không tự suy đoán hash.
+- Frontend: https://maclehoang.github.io/CNWeb/Ex3-20251295M-LeMinhHoang/frontend/ trả HTTP 200, API_BASE đã là Render.
+- Backend: https://ex3-rbac-20251295m.onrender.com/api/v1. GET /me không token trả 401 UNAUTHENTICATED.
+- Render workspace được người dùng xác nhận: Hoàng's workspace, tea-dbiab9gae00c73blk3cg. Kiểm kê trước tạo không trả dịch vụ; kiểm kê cuối có đúng một Web Service Free Singapore: srv-dbib532fngtc73cqepf0.
+- Deploy live: dep-dbib63qjnfac73darvn0, backend commit e90cef4c330c89d53c3082ec43ef72d6af913054. Những commit sau đổi frontend, runner và báo cáo; không đổi runtime backend. Dùng [skip render] khi chỉ cập nhật hồ sơ/frontend để tránh build không cần thiết.
+- Plugin không hỗ trợ Root Directory: lệnh thực tế là cd Ex3-20251295M-LeMinhHoang/backend && npm ci --omit=dev và cd Ex3-20251295M-LeMinhHoang/backend && npm start. Không Apply Blueprint để tạo lại service.
+- Atlas project có sẵn CNWeb-RBAC (6ae4a6a7b12851a5aca399ea), cluster Free rbac-cluster, AWS Singapore. Đã tái sử dụng; không tạo project/cluster mới.
+- Khi người dùng yêu cầu tự điền URI, tạo user dịch vụ ex3-render-20251295m, chỉ readWrite trên it4409_rbac, scope rbac-cluster; giữ hai user cũ. Mật khẩu do Atlas plugin sinh, không công khai.
+- Atlas access list giữ IP phát triển /32 hiện có, thêm đúng 74.220.52.0/24, 74.220.60.0/24 do chủ tài khoản sao chép từ Render Dashboard. Không mở Atlas ra toàn Internet.
+- Kiểm tra database trống trước seed: 25 users, 5 roles, 10 permissions; không reset, không seed trong start command. Kiểm kê sau QA: 28 users gồm 25 active + 3 deleted; 5 roles và 10 permissions.
+- Backend local trước đó: 36 tests đạt. Runner vừa được kiểm tra lại: local 37 assertions Newman + 11 UI scenarios đạt. Online: 37 assertions Newman + 11 UI scenarios đạt, không page error. CORS preflight 204 và Allow-Origin đúng Pages. Các mẫu đo đơn lẻ không phải cold start/benchmark production.
+- GitHub Actions và Pages cho commit 65507de thành công; URL và commit trong evidence/publication-results.json.
 
-## Làm tiếp khi phiên mới có công cụ
+## Lỗi thật đã xử lý
 
-1. Đọc skill Render/Atlas hiện được cung cấp và xác minh tài khoản/workspace/project. Liệt kê trước khi tạo để tránh trùng tài nguyên.
-2. Dùng Atlas Free cluster cho it4409_rbac. Thiết lập database user, IP máy phát triển và dải outbound Render. Không đọc/chia sẻ cookie hoặc mật khẩu trình duyệt.
-3. Dùng backend/seed.js để seed sau khi có cấu hình. Mọi mật khẩu được kiểm tra trước khi ghi; database đã có user chỉ được reset bằng --reset khi người dùng thực sự muốn mất dữ liệu. Không seed trong start command.
-4. Tạo Render Web Service từ repo main, Root Directory Ex3-20251295M-LeMinhHoang/backend, Build npm ci --omit=dev, Start npm start. server.js dùng PORT và host 0.0.0.0. MONGODB_URI/JWT_SECRET là secrets. CORS_ORIGINS=https://maclehoang.github.io.
-5. Đổi API_BASE trong frontend/index.html thành URL Render/api/v1, commit/push đúng tệp. Giữ nguyên các thay đổi chưa commit ở Ex1/Ex2.
-6. Tham khảo scripts/verify-local.js khi chạy Newman và browser QA online; script hiện hardcode localhost, cần sửa cho phép base URL/credentials qua env. Không xuất JWT/URI/password thật vào log hay báo cáo công khai.
-7. Thu minh chứng S00–S19 theo template DOCX. Các ảnh hiện trong evidence là viewport local, không phải ảnh online có thanh URL/DevTools. Không bịa dashboard, log, số đo hoặc ảnh online.
-8. Chỉnh backend/scripts/build-report.js dựa trên bằng chứng thật. Mục 8 có câu hỏi và dữ kiện kỹ thuật; không bịa trải nghiệm cá nhân, tự nhận hiểu biết, chữ ký, lớp/email/giảng viên chưa được cung cấp. Giữ khai báo AI đầy đủ.
-9. npm.cmd run report tạo DOCX/PDF/HTML; kiểm tra phân trang/PDF và mục lục. npm.cmd run package:submission tạo ZIP không gồm node_modules, .env, .runtime. Ghi commit có nội dung và push.
+1. Deploy đầu dep-dbib542fngtc73cqer20 update_failed do Atlas chưa cho outbound Render. Log thật trong evidence/render-initial-failure.json. Thêm hai CIDR ở trên rồi deploy lại cùng service thành công.
+2. Lượt UI online đầu phát hiện race: RolesPage.saved tải danh sách trước reloadMe; me cập nhật muộn gây unmount modal vừa mở. Đã sửa để giữ loading tới khi reloadMe hoàn tất, rồi để effect tải một lần. Lượt chạy sau kiểm tra cả PATCH/PUT 200 và đạt đủ 11 kịch bản. Bảo tồn evidence/online-attempt-1; xóa đúng role QA chưa gán cho ai bằng mã cụ thể, không reset DB.
 
-## Các tệp cần đọc
+## Báo cáo và dữ liệu riêng
 
-- README.md trong thư mục Ex3; backend/.env.example; render.yaml.
-- Ex3. Fullstack RBAC - 20261.pdf; Ex3-RBAC-MaSV-HoTenSV.docx.
-- backend/scripts/{verify-local,verify-publishing,build-report,package-submission}.js.
-- evidence/{publication-results,backend-results,postman-results,ui-results,experiments}.json.
+- Ex3-RBAC-20251295M-LeMinhHoang.{docx,pdf,html} đã cập nhật online; PDF 29 trang, mục lục đối chiếu trang thật. Cấu trúc 1–10 và câu hỏi mục 8 được giữ.
+- Thông tin do người dùng cung cấp: IT4409-1-26 (26.1A01); ThS. Nguyễn Mạnh Tuấn; hoang.lm251295M@sis.hust.edu.vn; không có nhóm BTL. Tài khoản seed của chủ bài vẫn là tài khoản demo 20251295m@example.test; không tự coi email demo là email SIS.
+- Mọi hồ sơ bạn học là giả lập. Không nhận là danh sách người thật. Khai báo AI đầy đủ; không tự nhận trải nghiệm, điểm số, hiểu biết hoặc chữ ký thay sinh viên.
+- Ảnh online nằm dưới evidence/online/. Hậu tố window là ảnh PrintWindow nguyên cửa sổ Chrome có thanh URL thật, đúng PID do Playwright mở, không chèn URL giả. Ảnh viewport gốc + metadata cũng được giữ. Không đọc profile/cookie hoặc dò cửa sổ Chrome cá nhân.
+- Chưa có ảnh dashboard Render/Atlas, GUI DevTools/Postman, ảnh log/phá code/hai cửa sổ theo một số khung template. JSON plugin, CDP, Newman và thí nghiệm local được ghi đúng loại; không giả làm ảnh công cụ. Mục 8 và cam kết cá nhân cần sinh viên tự hoàn thiện/xác nhận; mock server giảng viên chưa có URL để test chéo.
+- URI riêng: backend/.env; JWT và mật khẩu ứng dụng: backend/.runtime/online.env; tài khoản chấm để chuyển riêng: backend/.runtime/grader-access.md. Không đưa các tệp này vào Git/ZIP/báo cáo công khai, không xuất nội dung ra log/chat.
+- npm.cmd run package:submission tạo ZIP Submission, bỏ .env, .runtime, node_modules, coverage. SHA-256 ở evidence/submission-manifest.json (không nhét manifest này vào ZIP để tránh hash vòng).
 
-Các helper Chrome cũ trong backend/.runtime không đăng nhập được. Người dùng đăng nhập ở Chrome khác; cửa sổ đó không bật CDP. Không tái sử dụng profile/cookie cá nhân hoặc dò cửa sổ ngoài Render/Atlas. Ưu tiên tool hai plugin trong phiên mới.
+## Nếu cần tiếp tục
+
+Đọc bằng chứng hiện có trước; không tạo lại service/cluster/user hoặc seed lại database. prepare-online.js --check chỉ đọc. Runner dùng secrets riêng; VERIFY_BROWSER_ONLY=1 giữ Newman hiện có khi chỉ kiểm tra UI. Render Free có thể ngủ khi nhàn rỗi; chưa đo cold start. Nếu sửa runtime backend thì cần deploy mã mới, theo dõi đến live và xác minh; nếu chỉ đổi hồ sơ thì không kích hoạt thêm build backend.

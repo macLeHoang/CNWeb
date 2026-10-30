@@ -1,0 +1,9 @@
+{
+  "status": 403,
+  "body": {
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Bạn không có quyền thực hiện thao tác này (cần: users:create)."
+    }
+  }
+}

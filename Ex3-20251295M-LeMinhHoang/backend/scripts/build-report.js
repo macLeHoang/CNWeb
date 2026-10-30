@@ -36,6 +36,11 @@ const pic = (filename, caption) => {
   if (onlineVerified) {
     filename = `online/${filename.replace("-local", "-online")}`;
     caption = caption.replaceAll("(local)", "(online)");
+    const windowFile = filename.replace(/\.png$/, "-window.png");
+    if (fs.existsSync(path.join(evidence, windowFile))) {
+      filename = windowFile;
+      caption += " Ảnh cửa sổ Chrome QA với thanh URL thật, chụp bằng PrintWindow theo đúng PID do runner mở.";
+    }
   }
   if (!fs.existsSync(path.join(evidence, filename))) throw new Error(`Missing evidence image: ${filename}`);
   page.blocks.push({ type: "image", filename, caption });
@@ -78,12 +83,12 @@ function populate(questions) {
     ["Giảng viên", "ThS. Nguyễn Mạnh Tuấn"], ["Thời điểm tạo báo cáo", timestamp],
   ]);
   h(`Bản ${environmentLabel.toLowerCase()} với dữ liệu giả lập`, 2);
-  p(onlineVerified ? "Báo cáo được AI tổng hợp từ mã nguồn, kiểm thử API online và ảnh viewport Chrome của GitHub Pages gọi backend Render kết nối MongoDB Atlas. Các trạng thái triển khai lấy từ plugin chính thức; kết quả Newman và browser lưu dưới evidence/online. Ảnh viewport không chứa thanh địa chỉ hoặc giao diện DevTools; JSON không được coi là ảnh dashboard. Mục 8 giữ dữ kiện kỹ thuật và các phần sinh viên cần tự xác nhận." : "Báo cáo được AI tổng hợp từ mã nguồn, kết quả kiểm thử và ảnh chụp thực tế ở localhost. Backend online chưa được xác minh đầy đủ. Mục 8 ghi dữ kiện kỹ thuật để sinh viên tự phân tích.");
+  p(onlineVerified ? "Báo cáo được AI tổng hợp từ mã nguồn, kiểm thử API online và ảnh Chrome của GitHub Pages gọi backend Render kết nối MongoDB Atlas. Ảnh hậu tố window là ảnh cửa sổ Chrome QA với thanh URL thật; ảnh viewport gốc và metadata cũng được giữ. Trạng thái triển khai lấy từ plugin chính thức; JSON không được coi là ảnh dashboard. Mục 8 giữ dữ kiện kỹ thuật và các phần sinh viên cần tự xác nhận." : "Báo cáo được AI tổng hợp từ mã nguồn, kết quả kiểm thử và ảnh chụp thực tế ở localhost. Backend online chưa được xác minh đầy đủ. Mục 8 ghi dữ kiện kỹ thuật để sinh viên tự phân tích.");
 
   newPage("MỤC LỤC");
   p("Giữ cấu trúc mục 1–10 và các câu hỏi của template. Số trang dưới đây là các trang nội dung của bản PDF được tạo cùng báo cáo.");
   page.blocks.push({ type: "toc" });
-  p("Quy ước bằng chứng: hậu tố local/online chỉ môi trường thực của ảnh viewport Chrome; ảnh không có thanh địa chỉ/DevTools. Mỗi ảnh online có metadata URL, thời điểm và viewport. JSON từ plugin hoặc CDP là dữ liệu công cụ, không phải ảnh dashboard. Bằng chứng local của thí nghiệm phá code được giữ nhãn local.");
+  p("Quy ước: hậu tố local/online chỉ môi trường thực; hậu tố window chỉ ảnh nguyên cửa sổ Chrome QA có thanh địa chỉ thật. Mỗi ảnh online có metadata URL, thời điểm và viewport. JSON plugin/CDP không phải ảnh dashboard/DevTools. Thí nghiệm phá code local được giữ nhãn local; lượt UI thất bại đầu tiên được bảo tồn trong online-attempt-1.");
 
   newPage("1. Thông tin nộp bài");
   h("1.1. Đường dẫn");
@@ -128,7 +133,7 @@ function populate(questions) {
   code(onlineVerified ? `Chrome → ${publication.frontend.url}\n  │ HTTPS + CORS + Bearer token / JSON\n  ▼\n${publication.backend.apiBase}\n  │ authenticate → requirePermission → handler\n  │ Mongoose TLS, populate roles\n  ▼\nAtlas rbac-cluster (AWS AP_SOUTHEAST_1)\nDatabase it4409_rbac; collections users, roles, permissions\nNguồn trạng thái: evidence/deployment-results.json` : "Chrome → localhost:5500 → Express localhost:3001/api/v1 → MongoDB local\nDự kiến online: GitHub Pages → Render → MongoDB Atlas.");
   p(`Hình S00. Sơ đồ ${environmentLabel.toLowerCase()} dựng từ cấu hình đã kiểm chứng; không phải ảnh chụp dashboard.`);
   h("4.2. Khác biệt so với đề bài");
-  table(["Đặc tả", "Trạng thái thực tế", "Lý do"], [["Dữ liệu thành viên thật", "20 hồ sơ giả lập + 1 tài khoản sinh viên demo + 4 tài khoản kiểm tra", "Người dùng yêu cầu tạo dữ liệu khi không có danh sách thật."], ["Atlas/online trong báo cáo", onlineVerified ? "Render và Atlas đã được kiểm chứng" : "Chưa xác minh đầy đủ", "Trạng thái có JSON từ công cụ và kiểm thử thực."], ["Ảnh online với URL/DevTools", `Ảnh viewport ${environmentLabel.toLowerCase()} và JSON`, "Viewport không chứa thanh địa chỉ/DevTools, không coi là đáp ứng đủ khung ảnh template."], ["Cấu trúc backend gợi ý", "Tách app.js và server.js", "Cho phép Supertest nạp app không cần bind port."]]);
+  table(["Đặc tả", "Trạng thái thực tế", "Lý do"], [["Dữ liệu thành viên thật", "20 hồ sơ giả lập + 1 tài khoản sinh viên demo + 4 tài khoản kiểm tra", "Người dùng yêu cầu tạo dữ liệu khi không có danh sách thật."], ["Atlas/online trong báo cáo", onlineVerified ? "Render và Atlas đã được kiểm chứng" : "Chưa xác minh đầy đủ", "Trạng thái có JSON từ công cụ và kiểm thử thực."], ["Ảnh online với URL/DevTools", `Ảnh Chrome ${environmentLabel.toLowerCase()} có URL nếu hậu tố window; JSON Network thật`, "Chưa có ảnh dashboard/DevTools hoặc Postman GUI, không dùng JSON giả làm ảnh công cụ."], ["Cấu trúc backend gợi ý", "Tách app.js và server.js", "Cho phép Supertest nạp app không cần bind port."]]);
 
   newPage("4.3. Bản đồ endpoint → mã nguồn");
   const routes = [];
@@ -167,7 +172,7 @@ function populate(questions) {
 
   newPage("6. Minh họa kết quả");
   h("6.1. Xác thực");
-  p(`Ảnh dưới được chụp tự động từ Chrome headless tại ${onlineVerified ? publication.frontend.url : "http://127.0.0.1:5500/"}. Chưa đáp ứng yêu cầu thanh địa chỉ và giao diện DevTools trong template. Metadata đi kèm xác nhận URL thật; không chèn thanh URL giả lên ảnh.`);
+  p(`Ảnh được chụp tự động từ Chrome tại ${onlineVerified ? publication.frontend.url : "http://127.0.0.1:5500/"}. Bản online ưu tiên ảnh nguyên cửa sổ có thanh URL thật; không chèn thanh URL lên ảnh. Metadata đi kèm và ảnh viewport gốc được giữ. Các khung yêu cầu giao diện DevTools/dashboard vẫn ghi rõ nếu chưa thu được.`);
   pic("S03-local-login-error.png", "Hình S03 (local). Sai mật khẩu hiển thị thông điệp từ server; mã 401 được xác nhận bằng test/API, không hiển thị DevTools trong ảnh.");
   pic("S04-local-admin.png", "Hình S04 (local). Header có Lê Minh Hoàng và tài khoản demo; super-admin thấy ba tab và thao tác quản trị.");
 
@@ -291,7 +296,7 @@ function renderHtml() {
     if (block.type === "image") return `<figure><img src="data:image/png;base64,${fs.readFileSync(path.join(evidence,block.filename)).toString("base64")}"><figcaption>${escape(block.caption)}</figcaption></figure>`;
     return `<table>${pages.filter((item)=>item.title&&item.title!=="MỤC LỤC").map((item)=>`<tr><td>${escape(item.title)}</td><td>${pdfPageMap[pages.indexOf(item)] || pages.indexOf(item)+1}</td></tr>`).join("")}</table>`;
   };
-  return `<!doctype html><html lang="vi"><meta charset="utf-8"><title>${baseName}</title><style>@page{size:A4;margin:17mm 18mm}body{font-family:Arial,sans-serif;color:#1c293d;font-size:10pt;line-height:1.35;margin:0}section{break-after:page}section:last-child{break-after:auto}h1{font-size:17pt;color:#124c6b;line-height:1.25;margin:0 0 14px}h2{font-size:12pt;margin:13px 0 7px}h3{font-size:10.5pt}p{margin:7px 0;overflow-wrap:anywhere}table{border-collapse:collapse;width:100%;margin:10px 0;font-size:8.5pt}th,td{border:1px solid #cbd5e1;text-align:left;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eaf1f7}tr,figure{break-inside:avoid}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f9;padding:9px;font:8pt Consolas,monospace}figure{margin:10px 0}img{width:100%;max-height:205px;object-fit:contain;object-position:left top;border:1px solid #dce3eb}figcaption{font-size:8.5pt;margin:5px 0;color:#475569}</style><body>${pages.map((item)=>`<section>${item.blocks.map(render).join("")}</section>`).join("")}</body></html>`;
+  return `<!doctype html><html lang="vi"><meta charset="utf-8"><title>${baseName}</title><style>@page{size:A4;margin:17mm 18mm}body{font-family:Arial,sans-serif;color:#1c293d;font-size:10pt;line-height:1.35;margin:0}section{break-after:page}section:last-child{break-after:auto}h1{font-size:17pt;color:#124c6b;line-height:1.25;margin:0 0 14px}h2{font-size:12pt;margin:13px 0 7px}h3{font-size:10.5pt}p{margin:7px 0;overflow-wrap:anywhere}table{border-collapse:collapse;width:100%;margin:10px 0;font-size:8.5pt}th,td{border:1px solid #cbd5e1;text-align:left;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eaf1f7}tr,figure{break-inside:avoid}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f9;padding:9px;font:8pt Consolas,monospace}figure{margin:10px 0}img{width:100%;max-height:430px;object-fit:contain;object-position:left top;border:1px solid #dce3eb}figcaption{font-size:8.5pt;margin:5px 0;color:#475569}</style><body>${pages.map((item)=>`<section>${item.blocks.map(render).join("")}</section>`).join("")}</body></html>`;
 }
 
 async function buildDocx() {
@@ -306,7 +311,7 @@ async function buildDocx() {
       else if (block.type === "image") {
         const data = fs.readFileSync(path.join(evidence,block.filename));
         const width = data.readUInt32BE(16), height = data.readUInt32BE(20);
-        const scale = Math.min(550 / width, 205 / height);
+        const scale = Math.min(550 / width, 350 / height);
         children.push(new D.Paragraph({ children: [new D.ImageRun({ type: "png", data, transformation: { width: width*scale, height: height*scale } })] }));
         children.push(paragraph(block.caption));
       } else {

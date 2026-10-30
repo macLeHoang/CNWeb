@@ -1,9 +1,9 @@
 {
-  "checkedAt": "2026-10-30T13:58:05.349Z",
+  "checkedAt": "2026-10-30T15:22:50.676Z",
   "repository": {
     "url": "https://github.com/macLeHoang/CNWeb",
     "branch": "main",
-    "commit": "6850ce3e3b68680dcc34142f1973f505d8b270e4",
+    "commit": "65507de908ebb6f6ee8357f798dc1cc1506a691e",
     "pushed": true
   },
   "workflows": [
@@ -11,24 +11,31 @@
       "name": "Ex3 RBAC checks",
       "status": "completed",
       "conclusion": "success",
-      "commit": "6850ce3e3b68680dcc34142f1973f505d8b270e4",
-      "url": "https://github.com/macLeHoang/CNWeb/actions/runs/41065593328"
+      "commit": "65507de908ebb6f6ee8357f798dc1cc1506a691e",
+      "url": "https://github.com/macLeHoang/CNWeb/actions/runs/41079216452"
     },
     {
       "name": "pages build and deployment",
       "status": "completed",
       "conclusion": "success",
-      "commit": "6850ce3e3b68680dcc34142f1973f505d8b270e4",
-      "url": "https://github.com/macLeHoang/CNWeb/actions/runs/41065591196"
+      "commit": "65507de908ebb6f6ee8357f798dc1cc1506a691e",
+      "url": "https://github.com/macLeHoang/CNWeb/actions/runs/41079215612"
     }
   ],
   "frontend": {
     "url": "https://maclehoang.github.io/CNWeb/Ex3-20251295M-LeMinhHoang/frontend/",
     "status": 200,
-    "apiBase": "http://localhost:3001/api/v1",
+    "apiBase": "https://ex3-rbac-20251295m.onrender.com/api/v1",
     "staticPublished": true,
-    "apiStillLocal": true
+    "apiStillLocal": false
   },
-  "backendVerified": false,
-  "note": "Public GitHub and Pages checked directly. No Render/Atlas account access; no online backend is claimed."
+  "backend": {
+    "apiBase": "https://ex3-rbac-20251295m.onrender.com/api/v1",
+    "checkedAt": "2026-10-30T15:22:50.672Z",
+    "unauthenticatedStatus": 401,
+    "errorCode": "UNAUTHENTICATED",
+    "reachable": true
+  },
+  "backendVerified": true,
+  "note": "GitHub and Pages checked directly. Backend reachability and authenticated collection results are recorded separately; workflow status is reported as returned, not assumed successful."
 }

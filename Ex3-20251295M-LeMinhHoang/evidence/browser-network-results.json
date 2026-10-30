@@ -1,0 +1,78 @@
+{
+  "at": "2026-10-30T15:05:57.871Z",
+  "environment": "LOCAL / synthetic data",
+  "source": "Chrome DevTools Protocol Network events; cache disabled; no request bodies or credentials saved",
+  "requests": [
+    {
+      "requestId": "26328.137",
+      "type": "Fetch",
+      "method": "POST",
+      "url": "http://127.0.0.1:3001/api/v1/users",
+      "authorizationPresent": true,
+      "status": 403,
+      "protocol": "http/1.1",
+      "timing": {
+        "requestTime": 81842.443538,
+        "proxyStart": -1,
+        "proxyEnd": -1,
+        "dnsStart": -1,
+        "dnsEnd": -1,
+        "connectStart": -1,
+        "connectEnd": -1,
+        "sslStart": -1,
+        "sslEnd": -1,
+        "workerStart": -1,
+        "workerReady": -1,
+        "workerFetchStart": -1,
+        "workerRespondWithSettled": -1,
+        "sendStart": 0.201,
+        "sendEnd": 0.29,
+        "pushStart": 0,
+        "pushEnd": 0,
+        "receiveHeadersStart": 4.256,
+        "receiveHeadersEnd": 4.297
+      },
+      "headers": {
+        "Access-Control-Expose-Headers": "Location",
+        "Access-Control-Allow-Origin": "http://127.0.0.1:5500",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "requestId": "685D649783B76B7A184C1D6CD1B7D879",
+      "type": "Other",
+      "method": "OPTIONS",
+      "url": "http://127.0.0.1:3001/api/v1/users",
+      "authorizationPresent": false,
+      "status": 204,
+      "protocol": "http/1.1",
+      "timing": {
+        "requestTime": 81842.441271,
+        "proxyStart": -1,
+        "proxyEnd": -1,
+        "dnsStart": 0.102,
+        "dnsEnd": 0.584,
+        "connectStart": 0.584,
+        "connectEnd": 1.212,
+        "sslStart": -1,
+        "sslEnd": -1,
+        "workerStart": -1,
+        "workerReady": -1,
+        "workerFetchStart": -1,
+        "workerRespondWithSettled": -1,
+        "sendStart": 1.292,
+        "sendEnd": 1.387,
+        "pushStart": 0,
+        "pushEnd": 0,
+        "receiveHeadersStart": 1.83,
+        "receiveHeadersEnd": 1.86
+      },
+      "headers": {
+        "Access-Control-Allow-Headers": "Authorization,Content-Type",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE",
+        "Access-Control-Allow-Origin": "http://127.0.0.1:5500",
+        "Access-Control-Expose-Headers": "Location"
+      }
+    }
+  ]
+}
