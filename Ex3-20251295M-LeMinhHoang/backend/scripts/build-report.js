@@ -12,16 +12,20 @@ const baseName = "Ex3-RBAC-20251295M-LeMinhHoang";
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const json = (name) => JSON.parse(read(`evidence/${name}`));
 const publication = fs.existsSync(path.join(evidence, "publication-results.json")) ? json("publication-results.json") : null;
+const onlineVerified = publication?.backendVerified === true && fs.existsSync(path.join(evidence, "online/ui-results.json")) && json("online/ui-results.json").completed === true;
+const environmentLabel = onlineVerified ? "ONLINE" : "LOCAL";
+const deployment = fs.existsSync(path.join(evidence, "deployment-results.json")) ? json("deployment-results.json") : null;
 const git = (...args) => execFileSync("git", ["-c", `safe.directory=${workspace.replace(/\\/g, "/")}`, ...args], { cwd: workspace, encoding: "utf8" }).trim();
 const commit = publication?.repository?.commit || git("rev-parse", "HEAD");
 const logs = git("log", "--format=%h|%ad|%s", "--date=short", "--", "Ex3-20251295M-LeMinhHoang").split("\n").filter(Boolean).map((line) => line.split("|"));
 const backend = json("backend-results.json");
-const postman = json("postman-results.json");
-const ui = json("ui-results.json");
-const network = json("network-results.json");
+const postman = json(`${onlineVerified ? "online/" : ""}postman-results.json`);
+const ui = json(`${onlineVerified ? "online/" : ""}ui-results.json`);
+const network = json(`${onlineVerified ? "online/" : ""}network-results.json`);
 const experiments = json("experiments.json");
 const timestamp = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
 const pages = [];
+let pdfPageMap = [];
 let page;
 const newPage = (title) => { page = { title, blocks: [] }; pages.push(page); if (title) h(title, 1); };
 const p = (text) => page.blocks.push({ type: "p", text: String(text) });
@@ -29,6 +33,10 @@ const h = (text, level = 2) => page.blocks.push({ type: "h", text, level });
 const table = (headers, rows) => page.blocks.push({ type: "table", headers, rows: rows.map((row) => row.map((cell) => String(cell ?? ""))) });
 const code = (text) => page.blocks.push({ type: "code", text });
 const pic = (filename, caption) => {
+  if (onlineVerified) {
+    filename = `online/${filename.replace("-local", "-online")}`;
+    caption = caption.replaceAll("(local)", "(online)");
+  }
   if (!fs.existsSync(path.join(evidence, filename))) throw new Error(`Missing evidence image: ${filename}`);
   page.blocks.push({ type: "image", filename, caption });
 };
@@ -69,13 +77,13 @@ function populate(questions) {
     ["Nhóm BTL", "Chưa được cung cấp. Các tên trong seed là giả lập."],
     ["Giảng viên", "Chưa được cung cấp."], ["Thời điểm tạo báo cáo", timestamp],
   ]);
-  h("Bản local với dữ liệu giả lập", 2);
-  p("Báo cáo được AI tổng hợp từ mã nguồn, kết quả kiểm thử và ảnh chụp thực tế ở localhost theo yêu cầu người dùng. Mã nguồn đã push GitHub; GitHub Actions và frontend GitHub Pages đã được xác minh thành công. Backend online chưa xác minh, frontend còn trỏ API localhost và chưa có ảnh DevTools/Atlas/Render. Đây chưa phải bản xác nhận hoàn thành toàn bộ tiêu chí nộp bài. Mục 8 ghi dữ kiện kỹ thuật để sinh viên tự phân tích.");
+  h(`Bản ${environmentLabel.toLowerCase()} với dữ liệu giả lập`, 2);
+  p(onlineVerified ? "Báo cáo được AI tổng hợp từ mã nguồn, kiểm thử API online và ảnh viewport Chrome của GitHub Pages gọi backend Render kết nối MongoDB Atlas. Các trạng thái triển khai lấy từ plugin chính thức; kết quả Newman và browser lưu dưới evidence/online. Ảnh viewport không chứa thanh địa chỉ hoặc giao diện DevTools; JSON không được coi là ảnh dashboard. Mục 8 giữ dữ kiện kỹ thuật và các phần sinh viên cần tự xác nhận." : "Báo cáo được AI tổng hợp từ mã nguồn, kết quả kiểm thử và ảnh chụp thực tế ở localhost. Backend online chưa được xác minh đầy đủ. Mục 8 ghi dữ kiện kỹ thuật để sinh viên tự phân tích.");
 
   newPage("MỤC LỤC");
   p("Giữ cấu trúc mục 1–10 và các câu hỏi của template. Số trang dưới đây là các trang nội dung của bản PDF được tạo cùng báo cáo.");
   page.blocks.push({ type: "toc" });
-  p("Quy ước bằng chứng: ảnh có hậu tố local là ảnh viewport Chrome headless ở localhost, không có thanh địa chỉ/DevTools. Các trang tổng hợp JSON là bản trình bày dữ liệu đo thật, không phải ảnh công cụ quản trị. Các mục online chưa thực hiện được ghi rõ thay vì dùng ảnh giả.");
+  p("Quy ước bằng chứng: hậu tố local/online chỉ môi trường thực của ảnh viewport Chrome; ảnh không có thanh địa chỉ/DevTools. Mỗi ảnh online có metadata URL, thời điểm và viewport. JSON từ plugin hoặc CDP là dữ liệu công cụ, không phải ảnh dashboard. Bằng chứng local của thí nghiệm phá code được giữ nhãn local.");
 
   newPage("1. Thông tin nộp bài");
   h("1.1. Đường dẫn");
@@ -84,25 +92,25 @@ function populate(questions) {
     ["Commit mã nguồn đối chiếu", commit],
     ["Frontend local", "http://127.0.0.1:5500/"], ["Backend local", "http://127.0.0.1:3001/api/v1"],
     ["Frontend online", publication?.frontend?.url || "Chưa được xác minh"],
-    ["Backend online", "Chưa có URL backend được xác nhận; API_BASE của frontend vẫn là localhost."],
+    ["Backend online", onlineVerified ? publication.backend.apiBase : "Chưa xác minh đầy đủ; xem evidence/publication-results.json"],
     ["Postman", "postman/Ex3-RBAC-T01-T24.postman_collection.json"], ["Video demo", "Không thực hiện (không bắt buộc)."],
   ]);
   h("1.2. Tài khoản để giảng viên kiểm tra trên bản online");
-  p("Bốn tài khoản dưới đây đang sử dụng trên LOCAL. Mật khẩu là mật khẩu demo công khai, phải đặt lại bằng biến môi trường riêng trước khi triển khai online.");
+  p(onlineVerified ? "Bốn tài khoản dưới đây đã được kiểm thử trên bản online. Mật khẩu riêng được lưu trong backend/.runtime/grader-access.md để chủ bài chuyển riêng cho giảng viên; không đưa vào Git hoặc báo cáo công khai. Các mật khẩu demo local không dùng trên Atlas." : "Bốn tài khoản dưới đây đang sử dụng trên LOCAL với mật khẩu demo công khai.");
   table(["Vai trò", "Email demo", "Mật khẩu demo"], [
-    ["super-admin", "gv.admin.20251295@example.test", "Demo@2026"], ["user-manager", "gv.manager.20251295@example.test", "Demo@2026"],
-    ["auditor", "gv.auditor.20251295@example.test", "Demo@2026"], ["member", "gv.member.20251295@example.test", "Demo@2026"],
+    ["super-admin", "gv.admin.20251295@example.test", onlineVerified ? "Cấp riêng" : "Demo@2026"], ["user-manager", "gv.manager.20251295@example.test", onlineVerified ? "Cấp riêng" : "Demo@2026"],
+    ["auditor", "gv.auditor.20251295@example.test", onlineVerified ? "Cấp riêng" : "Demo@2026"], ["member", "gv.member.20251295@example.test", onlineVerified ? "Cấp riêng" : "Demo@2026"],
   ]);
   h("1.3. Môi trường");
   const pkg = JSON.parse(read("backend/package.json"));
-  table(["Thành phần", "Phiên bản / cách chạy"], [["Node.js", process.version], ["Express / Mongoose", `${pkg.dependencies.express} / ${pkg.dependencies.mongoose}; phiên bản khóa trong package-lock.json`], ["Database", "MongoDB local qua mongodb-memory-server; dữ liệu demo lưu dưới backend/.runtime/mongo"], ["Frontend", "React 18 CDN, Axios CDN, Babel; local port 5500 và GitHub Pages HTTP 200"], ["Backend", "Express local port 3001; dịch vụ Render online chưa xác minh"]]);
+  table(["Thành phần", "Phiên bản / cách chạy"], [["Node.js (máy tạo báo cáo)", process.version], ["Express / Mongoose", `${pkg.dependencies.express} / ${pkg.dependencies.mongoose}; phiên bản khóa trong package-lock.json`], ["Database", onlineVerified ? "Atlas Free, rbac-cluster, AWS Singapore; database it4409_rbac" : "MongoDB local qua mongodb-memory-server"], ["Frontend", "React 18 CDN, Axios CDN, Babel; GitHub Pages"], ["Backend", onlineVerified ? `Render Free Singapore; ${publication.backend.apiBase}` : "Express local port 3001; online chưa xác minh"]]);
 
   newPage("2. Tổng quan kết quả");
   h("2.1. Bảng hoàn thành chức năng");
   const functions = ["Đăng nhập POST /auth/tokens, GET /me", "Middleware authenticate và requirePermission", "GET /users tìm kiếm/lọc/sort/phân trang", "POST /users, allow-list, mật khẩu mạnh", "PATCH /users và khóa/mở khóa", "DELETE /users xóa mềm", "Gán/gỡ vai trò idempotent, chống leo thang", "CRUD vai trò, thay quyền, bảo vệ role", "Danh mục quyền và quyền của vai trò", "Response/mã lỗi thống nhất", "Frontend đăng nhập và interceptor", "Hiển thị theo quyền", "Trang Người dùng và các modal", "Trang Vai trò và modal", "Responsive dưới 768px", "Triển khai online", "Phần mở rộng", "Dữ liệu người thật trong seed"];
-  table(["#", "Chức năng", "Trạng thái"], functions.map((text, index) => [index + 1, text, index < 15 ? "Đã kiểm tra local" : index === 16 ? "Không làm, ngoài phạm vi đã chốt" : index === 17 ? "Giả lập theo yêu cầu; chưa đạt tiêu chí dữ liệu thật" : "Chưa thực hiện"]));
+  table(["#", "Chức năng", "Trạng thái"], functions.map((text, index) => [index + 1, text, index < 15 ? `Đã kiểm tra ${environmentLabel.toLowerCase()}` : index === 16 ? "Không làm, ngoài phạm vi đã chốt" : index === 17 ? "Giả lập theo yêu cầu; chưa đạt tiêu chí dữ liệu thật" : onlineVerified ? "Đã xác minh online" : "Chưa xác minh"]));
   h("2.2. Tóm tắt (5–8 câu)");
-  p(`Ứng dụng hiện có 18 endpoint REST và frontend React cho quản lý người dùng, vai trò và hồ sơ cá nhân. Quyền được hợp từ các vai trò và đọc lại trong từng request. Backend đạt ${backend.total} test tự động; Postman chạy bằng Newman đạt ${postman.assertions.total} assertion. Kiểm thử Chrome hoàn thành ${ui.passed.length} kịch bản giao diện, gồm bốn role và màn hình mobile. Seed có 25 tài khoản với dữ liệu giả lập được gắn rõ miền example.test. Mã nguồn đã được push, GitHub Actions thành công và frontend Pages trả HTTP 200. Backend online, thông tin lớp/giảng viên, dữ liệu sinh viên thật và nhận xét cá nhân vẫn cần hoàn thiện.`);
+  p(`Ứng dụng có 18 endpoint REST và frontend React cho quản lý người dùng, vai trò và hồ sơ cá nhân. Quyền được hợp từ các vai trò và đọc lại trong từng request. Backend đạt ${backend.total} test tự động ở môi trường kiểm thử riêng; Newman ${environmentLabel} đạt ${postman.assertions.total} assertion. Chrome ${environmentLabel} hoàn thành ${ui.passed.length} kịch bản giao diện, gồm bốn role và mobile. Seed có 25 tài khoản giả lập với miền example.test; kiểm thử có thể tạo thêm tài khoản tạm đã xóa mềm. ${onlineVerified ? "GitHub Pages gọi backend Render kết nối Atlas đã được kiểm chứng." : "Backend online chưa được xác minh đầy đủ."} Thông tin lớp/giảng viên, dữ liệu sinh viên thật, ảnh đầy đủ thanh địa chỉ/DevTools và nhận xét cá nhân vẫn cần bổ sung.`);
 
   newPage("3. Quá trình phát triển");
   h("3.1. Nhật ký thực hiện");
@@ -110,17 +118,17 @@ function populate(questions) {
   table(["Ngày", "Công việc", "Thời lượng", "Commit"], [...logs].reverse().slice(-8).map(([hash,date,message]) => [date, message, "Không đo", hash]));
   h("3.2. Lịch sử commit");
   code(logs.slice(0,12).map(([hash,date,message]) => `${hash} ${date} ${message}`).join("\n"));
-  p(`Mã nguồn đối chiếu đã push tại commit ${commit}. Kết quả GitHub Actions được truy vấn từ API công khai và lưu trong evidence/publication-results.json. Cả workflow Ex3 RBAC checks và pages build and deployment đều đã hoàn thành thành công cho commit được ghi trong file bằng chứng.`);
+  p(`Mã nguồn đối chiếu đã push tại commit ${commit}. Trạng thái từng workflow được truy vấn từ API GitHub và lưu trong evidence/publication-results.json; chỉ kết luận thành công khi conclusion là success. Commit của deploy Render được ghi riêng trong evidence/deployment-results.json.`);
   for (const workflow of publication?.workflows || []) p(`${workflow.name}: ${workflow.conclusion} — ${workflow.url}`);
   h("3.3. Cấu trúc thư mục thực tế");
   code("backend/\n  app.js, server.js, seed.js, seed-data.js\n  models/{Permission,Role,User}.js\n  middleware/auth.js\n  routes/{auth,users,roles,permissions}.js\n  utils/{http,rbac}.js\n  scripts/{demo,verify-local,experiments,record-tests,build-report}.js\n  test/{api,seed}.test.js\nfrontend/index.html\npostman/Ex3-RBAC-T01-T24.postman_collection.json\nevidence/\nrender.yaml, README.md, AI-LOG.md");
 
   newPage("4. Kiến trúc và thiết kế đã hiện thực");
   h("4.1. Sơ đồ triển khai");
-  code("Chrome\n  │ HTTP GET :5500 (React/Axios từ CDN)\n  ▼\nFrontend http://127.0.0.1:5500\n  │ OPTIONS preflight → CORS allow-list\n  │ Bearer token / JSON\n  ▼\nExpress http://127.0.0.1:3001/api/v1\n  │ authenticate → requirePermission → handler\n  │ Mongoose query, populate roles\n  ▼\nMongoDB local – database it4409_rbac_demo\n\nDự kiến online: GitHub Pages → Render → MongoDB Atlas.\nChưa có tên miền backend/cluster online được xác nhận.");
-  p("Hình S00. Sơ đồ local mô tả cấu hình đã chạy. Sơ đồ có tên miền online thật theo template chưa thể hoàn thành trước khi deploy.");
+  code(onlineVerified ? `Chrome → ${publication.frontend.url}\n  │ HTTPS + CORS + Bearer token / JSON\n  ▼\n${publication.backend.apiBase}\n  │ authenticate → requirePermission → handler\n  │ Mongoose TLS, populate roles\n  ▼\nAtlas rbac-cluster (AWS AP_SOUTHEAST_1)\nDatabase it4409_rbac; collections users, roles, permissions\nNguồn trạng thái: evidence/deployment-results.json` : "Chrome → localhost:5500 → Express localhost:3001/api/v1 → MongoDB local\nDự kiến online: GitHub Pages → Render → MongoDB Atlas.");
+  p(`Hình S00. Sơ đồ ${environmentLabel.toLowerCase()} dựng từ cấu hình đã kiểm chứng; không phải ảnh chụp dashboard.`);
   h("4.2. Khác biệt so với đề bài");
-  table(["Đặc tả", "Trạng thái thực tế", "Lý do"], [["Dữ liệu thành viên thật", "20 hồ sơ giả lập + 1 tài khoản sinh viên demo + 4 tài khoản kiểm tra", "Người dùng yêu cầu tạo dữ liệu khi không có danh sách thật."], ["Atlas/online trong báo cáo", "MongoDB local; chưa có deploy", "Chưa có kết nối tài khoản dịch vụ."], ["Ảnh online với URL/DevTools", "Ảnh viewport local và dữ liệu JSON", "Bằng chứng local; không thay thế ảnh online theo template."], ["Cấu trúc backend gợi ý", "Tách app.js và server.js", "Cho phép Supertest nạp app không cần bind port."]]);
+  table(["Đặc tả", "Trạng thái thực tế", "Lý do"], [["Dữ liệu thành viên thật", "20 hồ sơ giả lập + 1 tài khoản sinh viên demo + 4 tài khoản kiểm tra", "Người dùng yêu cầu tạo dữ liệu khi không có danh sách thật."], ["Atlas/online trong báo cáo", onlineVerified ? "Render và Atlas đã được kiểm chứng" : "Chưa xác minh đầy đủ", "Trạng thái có JSON từ công cụ và kiểm thử thực."], ["Ảnh online với URL/DevTools", `Ảnh viewport ${environmentLabel.toLowerCase()} và JSON`, "Viewport không chứa thanh địa chỉ/DevTools, không coi là đáp ứng đủ khung ảnh template."], ["Cấu trúc backend gợi ý", "Tách app.js và server.js", "Cho phép Supertest nạp app không cần bind port."]]);
 
   newPage("4.3. Bản đồ endpoint → mã nguồn");
   const routes = [];
@@ -140,25 +148,26 @@ function populate(questions) {
 
   newPage("5. Triển khai online");
   h("5.1. Lựa chọn nền tảng");
-  p("Kiến trúc đã chọn: GitHub Pages cho frontend tĩnh, Render cho backend Node và MongoDB Atlas cho CSDL. Frontend đã được xuất bản trên GitHub Pages và xác minh HTTP 200. Render và MongoDB Atlas đã được cài plugin theo kiểm tra danh mục, nhưng cuộc trò chuyện cũ chưa nhận công cụ để xác minh tài nguyên hoặc backend online. File render.yaml và các lệnh build/start đã được chuẩn bị. Frontend hiện vẫn trỏ API localhost, nên chưa thể coi là ứng dụng online hoàn chỉnh.");
+  p(onlineVerified ? "GitHub Pages phục vụ frontend tĩnh; Render Free chạy Express; MongoDB Atlas Free lưu dữ liệu. Project CNWeb-RBAC và cluster rbac-cluster được phát hiện trước khi triển khai và tái sử dụng, không tạo cluster/project trùng. Render workspace đã được chủ tài khoản xác nhận trước khi thao tác. Trạng thái deploy live và các request xác thực đã được kiểm chứng." : "GitHub Pages phục vụ frontend tĩnh; Render cho backend và MongoDB Atlas cho CSDL. Xem trạng thái kiểm chứng thực tế trong evidence/publication-results.json và evidence/deployment-results.json; chưa tuyên bố online hoàn chỉnh khi chưa đạt bộ kiểm thử.");
   h("5.2. Biến môi trường trên host");
-  table(["Tên biến", "Mục đích", "Local / host"], [["MONGODB_URI", "Chuỗi kết nối MongoDB", "Demo dùng MongoDB local; host cần Atlas URI riêng"], ["JWT_SECRET", "Ký/kiểm tra JWT", "Demo sinh ngẫu nhiên mỗi lần chạy; host lưu secret riêng"], ["ACCESS_TOKEN_TTL", "Thời hạn access token", "3600 giây trong cấu hình mẫu"], ["CORS_ORIGINS", "Danh sách origin được đọc response", "Local cho localhost/127.0.0.1; host cho origin Pages"], ["PORT", "Port HTTP server", "Local 3001; host cung cấp"], ["NODE_ENV", "Môi trường runtime", "production trên Render"]]);
+  table(["Tên biến", "Mục đích", "Local / host"], [["MONGODB_URI", "Chuỗi kết nối MongoDB", "Atlas URI riêng, không xuất giá trị trong báo cáo"], ["JWT_SECRET", "Ký/kiểm tra JWT", "Secret riêng trên Render; không công khai"], ["ACCESS_TOKEN_TTL", "Thời hạn access token", "3600 giây"], ["CORS_ORIGINS", "Danh sách origin được đọc response", "https://maclehoang.github.io"], ["PORT", "Port HTTP server", "Do Render cung cấp; bind 0.0.0.0"], ["NODE_ENV", "Môi trường runtime", "production trên Render"]]);
   h("5.3. Các bước triển khai");
-  p("Các bước đã thực hiện: cài npm dependencies; chạy demo local và kiểm thử; tạo render.yaml; push GitHub; xác minh CI thành công và frontend Pages HTTP 200. Các bước còn lại: dùng công cụ Render/Atlas trong phiên mới để xác minh hoặc tạo database user/IP access list, cấu hình secret trên host, deploy backend và đổi API_BASE. Chưa xác nhận hoàn tất các bước còn lại.");
-  p("Hình S01. Chưa có ảnh dashboard Render vì chưa deploy. Hình S02. Chưa có ảnh Atlas vì chưa có cluster online. Không tạo ảnh thay thế giả.");
+  p(onlineVerified ? "Đã liệt kê tài nguyên trước khi tạo; tái sử dụng Atlas; kiểm tra database trước seed; cấu hình secret và CORS; triển khai một Web Service Free; đổi API_BASE sang Render; push frontend; chạy collection và UI trên HTTPS. Seed chỉ chạy có chủ đích, không nằm trong start command. Lệnh build/start thực tế và commit deploy có trong deployment-results.json." : "Đã chuẩn bị cấu hình và runner. Các bước chỉ được xác nhận hoàn tất khi có trạng thái công cụ cùng kiểm thử online tương ứng.");
+  p("Hình S01/S02. Chưa thu được ảnh dashboard Render/Atlas có thanh địa chỉ. Metadata thật từ plugin nằm trong evidence/deployment-results.json; không dựng ảnh dashboard giả để thay thế.");
+  if (deployment) code(JSON.stringify({ checkedAt: deployment.checkedAt, render: deployment.render, atlas: deployment.atlas, seed: deployment.seed }, null, 2));
 
   newPage("5.4. Sự cố khi triển khai");
-  p("Chưa triển khai lên host nên không có sự cố 'local chạy được nhưng online lỗi' để báo cáo. Khó khăn thực tế của môi trường phát triển là kết nối npm/CDN trong sandbox và lượt browser test đầu tiên bị timeout trước khi React render. Sau khi chạy kiểm thử với quyền truy cập mạng phù hợp, Chrome tải thư viện và hoàn thành các kịch bản. Đây là sự cố local, không được tính là sự cố triển khai theo template.");
+  p(deployment?.incidents?.length ? deployment.incidents.join("\n") : "Không có sự cố online được ghi nhận trong dữ liệu triển khai hiện có; không suy đoán lỗi. Kết nối trực tiếp Atlas qua plugin đã trả Internal error, nên dùng URI do chủ tài khoản cung cấp trong .env cho seed và backend; không khai thác mật khẩu/cookie trình duyệt.");
   h("5.5. Số liệu đo trên bản online");
-  p("Chưa có số đo online. Bảng dưới là số đo LOCAL qua Node fetch, không phải DevTools. Không đo cold start trên Render và chưa đo số OPTIONS thực từ browser Network.");
+  p(`Bảng dưới là số đo ${environmentLabel} qua Node fetch, không phải thời gian từ giao diện DevTools. Mỗi URL có một mẫu; không đo cold start. Các sự kiện Network thực của Chrome được lưu riêng khi chạy browser online, với cache tắt và thông tin xác thực bị loại bỏ.`);
   table(["Request", "Status", "Thời gian (ms)", "Body (byte)", "Thời điểm UTC"], network.measurements.map((item) => [item.url,item.status,item.ms,item.bytes,item.at]));
-  p("limit=100 trả nhiều bản ghi hơn limit=10; số byte tăng theo dữ liệu trong demo. Mỗi phép đo chỉ có một mẫu, không đủ để kết luận hiệu năng production. Cần đo lại online với Disable cache, nhiều mẫu và cùng điều kiện.");
+  p("limit=100 có thể trả nhiều bản ghi hơn limit=10; xem số byte thực trong bảng. Một mẫu không đủ để kết luận hiệu năng ổn định. Render Free có thể ngủ khi nhàn rỗi; các số đo này không được coi là cold start hoặc tải production.");
   code(JSON.stringify(network.preflight, null, 2));
-  p("File nguồn: evidence/network-results.json. Token trong bằng chứng đã rút gọn; không ghi JWT_SECRET hay URI riêng.");
+  p(`File nguồn: evidence/${onlineVerified ? "online/" : ""}network-results.json. Không lưu token, mật khẩu, JWT_SECRET hoặc URI có thông tin xác thực.`);
 
   newPage("6. Minh họa kết quả");
   h("6.1. Xác thực");
-  p("Tất cả ảnh dưới là viewport Chrome headless ở http://127.0.0.1:5500, chụp tự động. Chưa đáp ứng yêu cầu thanh địa chỉ và DevTools của ảnh online trong template.");
+  p(`Ảnh dưới được chụp tự động từ Chrome headless tại ${onlineVerified ? publication.frontend.url : "http://127.0.0.1:5500/"}. Chưa đáp ứng yêu cầu thanh địa chỉ và giao diện DevTools trong template. Metadata đi kèm xác nhận URL thật; không chèn thanh URL giả lên ảnh.`);
   pic("S03-local-login-error.png", "Hình S03 (local). Sai mật khẩu hiển thị thông điệp từ server; mã 401 được xác nhận bằng test/API, không hiển thị DevTools trong ảnh.");
   pic("S04-local-admin.png", "Hình S04 (local). Header có Lê Minh Hoàng và tài khoản demo; super-admin thấy ba tab và thao tác quản trị.");
 
@@ -184,23 +193,23 @@ function populate(questions) {
   p("Kiểm thử UI bổ sung đã tạo custom role, sửa tên, thay bộ quyền và xóa role không sử dụng thành công.");
 
   newPage("6.5. Kỹ thuật");
-  p("Hình S12. Chưa có ảnh DevTools Network/preflight online. Bằng chứng local thay thế để tham khảo nằm trong network-results.json, status OPTIONS = 204.");
+  p(`Hình S12. Chưa có ảnh giao diện DevTools Network/preflight. Response OPTIONS thực trong ${onlineVerified ? "online/" : ""}network-results.json có status ${network.preflight.status}; sự kiện CDP online có trong browser-network-results.json.`);
   p(`Hình S13. Authorization đã được interceptor gắn; ví dụ đã che: ${network.authorizationExample}. Chưa có ảnh DevTools header online.`);
   pic("S14-local-mobile.png", "Hình S14 (local). Viewport 390×844; test xác nhận trang không tràn ngang và bảng cuộn trong vùng chứa.");
   p(ref("frontend/index.html", "api.interceptors.request.use"));
 
   newPage("7. Kiểm thử");
   h("7.1. Kết quả Postman T01–T24 trên bản online");
-  p(`Chưa chạy online. Kết quả LOCAL từ Newman: ${postman.requests.total} request, ${postman.assertions.total} assertion, ${postman.failures.length} lỗi. Thời điểm UTC: ${postman.at}. T13, T15 và T17 có nhiều request vì phải kiểm tra trạng thái sau thao tác. Mỗi request đều có assertion status.`);
-  table(["Case", "Kết quả LOCAL", "Đạt?"], postman.executions.filter((item) => /^T\d/.test(item.name)).map((item) => [item.name, `${item.status}${item.code ? " " + item.code : ""}${item.issues ? " / " + item.issues.join(", ") : ""}`, item.assertions?.every((assertion) => assertion.passed) ? "Có" : "Không"]));
-  p("Hình S15. Chưa có ảnh Postman Collection Runner online; bằng chứng máy đọc được là evidence/postman-results.json, thu từ Newman chạy collection gốc.");
+  p(`Kết quả ${environmentLabel} từ Newman: ${postman.requests.total} request, ${postman.assertions.total} assertion, ${postman.failures.length} lỗi. Thời điểm UTC: ${postman.at}. T13, T15 và T17 có nhiều request để kiểm tra trạng thái sau thao tác. Mỗi request đều có assertion status.`);
+  table(["Case", `Kết quả ${environmentLabel}`, "Đạt?"], postman.executions.filter((item) => /^T\d/.test(item.name)).map((item) => [item.name, `${item.status}${item.code ? " " + item.code : ""}${item.issues ? " / " + item.issues.join(", ") : ""}`, item.assertions?.every((assertion) => assertion.passed) ? "Có" : "Không"]));
+  p(`Hình S15. Chưa có ảnh giao diện Postman Runner; bằng chứng là evidence/${onlineVerified ? "online/" : ""}postman-results.json, thu từ Newman chạy collection gốc, không phải ảnh Postman.`);
 
   newPage("7.2. Các test chưa đạt");
-  p(`Backend tự động: ${backend.total} test đạt, ${backend.failed} lỗi. Postman local: đạt toàn bộ ${postman.assertions.total} assertion. Browser local: đạt ${ui.passed.length} kịch bản, không có page error. Các test chéo với mock server của giảng viên chưa chạy do chưa có URL mock. Toàn bộ kiểm tra online còn chờ deploy.`);
+  p(`Backend trên database thử nghiệm riêng: ${backend.total} test đạt, ${backend.failed} lỗi. Newman ${environmentLabel}: ${postman.assertions.total} assertion, ${postman.failures.length} lỗi. Browser ${environmentLabel}: ${ui.passed.length} kịch bản, ${ui.pageErrors.length} page error. Test chéo với mock server của giảng viên chưa chạy do chưa có URL mock.`);
   h("7.3. Kiểm thử bảo mật thủ công");
   p("Kịch bản được thực thi tự động trong page.evaluate của Chrome với tài khoản member, tương đương gọi fetch từ trang nhưng không phải ảnh Console thao tác tay. Backend từ chối tạo user dù request trực tiếp bỏ qua nút giao diện.");
-  code(JSON.stringify(json("member-console-result.json"), null, 2));
-  p("Hình S16. Chưa có ảnh Console online. File member-console-result.json chứa response thực của lệnh fetch local.");
+  code(JSON.stringify(json(`${onlineVerified ? "online/" : ""}member-console-result.json`), null, 2));
+  p(`Hình S16. Chưa có ảnh giao diện Console. File ${onlineVerified ? "online/" : ""}member-console-result.json chứa response fetch thực trong Chrome ${environmentLabel}.`);
   table(["Kịch bản UI đã đạt"], ui.passed.map((text) => [text]));
 
   newPage("8. Phân tích và giải thích");
@@ -235,6 +244,7 @@ function populate(questions) {
   q(5);
   code(JSON.stringify(experiments.revocation, null, 2));
   p("Hình S19. Chưa có ảnh hai cửa sổ online. Thí nghiệm API local dùng cùng access token trước/sau: GET 200 → gỡ role 204 → GET 403. Quyền không chứa trong JWT; authenticate đọc lại database. Nếu nhúng và tin quyền cũ trong token thì việc thu hồi sẽ bị trì hoãn đến lúc token hết hạn hoặc có cơ chế vô hiệu hóa bổ sung.");
+  if (onlineVerified) table(["Đối chiếu online (T15)", "HTTP"], postman.executions.filter((item) => item.name.startsWith("T15")).map((item) => [item.name, item.status]));
   p(ref("backend/middleware/auth.js", 'User.findById(payload.sub).populate("roles")'));
 
   newPage("8. Phân tích và giải thích – Câu 6–8");
@@ -244,7 +254,7 @@ function populate(questions) {
   q(7);
   p("Dữ kiện thiết kế: token lưu sessionStorage theo đặc tả; request interceptor đọc storage trước mỗi request. Lợi ích: phiên kết thúc khi đóng tab; hạn chế: script có XSS vẫn có thể đọc token. Không chuyển sang cookie httpOnly vì đề yêu cầu Bearer header và frontend CDN; triển khai cookie sẽ cần xem lại contract CORS/CSRF và tích hợp mock. Đây là phân tích kỹ thuật để sinh viên tự diễn đạt quyết định.");
   q(8);
-  p("Origin local thực: http://127.0.0.1:5500. Backend demo cho phép localhost:5500 và 127.0.0.1:5500. CORS_ORIGINS trên host chưa được cấu hình. Header local đo được:");
+  p(`Origin được đo: ${network.origin || "http://127.0.0.1:5500"}. ${onlineVerified ? "CORS_ORIGINS trên Render cho phép https://maclehoang.github.io." : "Backend demo cho phép localhost:5500 và 127.0.0.1:5500; chưa xác minh host."} Header ${environmentLabel} thực:`);
   code(JSON.stringify(network.preflight.headers, null, 2));
   p("Allow-Origin giới hạn origin được browser đọc; Allow-Methods liệt kê method cho preflight; Allow-Headers cho phép Authorization và Content-Type; Expose-Headers cho phép JS đọc Location. Chưa chạy thí nghiệm trên Console một trang bên ngoài. Postman không thực thi cơ chế CORS của browser, vì vậy CORS không thay thế authenticate/requirePermission.");
 
@@ -252,7 +262,7 @@ function populate(questions) {
   q(9);
   p("Ghi chú thiết kế, chưa implement: thêm departmentId vào User và dữ liệu ngữ cảnh quản lý; không lấy phạm vi khoa từ client để quyết định quyền. Tạo middleware kiểm tra scope sau authenticate, áp bộ lọc departmentId cho GET /users và kiểm tra target ở PATCH/gán role. Cần tránh IDOR khi gọi userId thuộc khoa khác, tránh gán role quản trị toàn hệ thống thông qua manager khoa và không cho tự sửa departmentId để vượt phạm vi. Test phải có hai khoa, cùng permission nhưng khác phạm vi. Sinh viên tự quyết định endpoint/permission mới và giải thích trên mô hình của mình.");
   q(10);
-  table(["Hạn chế cụ thể", "Hướng cải thiện nếu có thêm thời gian"], [["Chưa online; demo chạy local và cần mạng cho CDN", "Kết nối tài khoản dịch vụ, deploy, kiểm tra CORS/HTTPS và chụp lại ảnh đúng template"],["Không có refresh/revoke token server", "Thiết kế refresh token quay vòng và logout server; nằm ngoài phần bắt buộc đã chốt"],["Khóa ghi RBAC mới chỉ bảo vệ trong một tiến trình Node", "Nếu chạy nhiều instance, chuyển sang khóa dùng chung/giao dịch ở database; test đồng thời một tiến trình hiện đã đạt"],["Seed dùng hồ sơ giả lập", "Đổi sang dữ liệu được xác minh/được phép sử dụng; giữ miền test cho QA"],["Danh sách role UI tải tối đa 100 role", "Phân trang hoặc tải mọi trang role để không thiếu khi dữ liệu lớn"],["Dev tooling có dependency cũ từ Newman", "Rà npm audit và tách runner khỏi production; production cài --omit=dev"]]);
+  table(["Hạn chế cụ thể", "Hướng cải thiện nếu có thêm thời gian"], [[onlineVerified ? "Render Free có thể ngủ khi nhàn rỗi; chưa có ảnh đủ ngữ cảnh template" : "Online chưa xác minh đầy đủ", "Đo cold start khi cần và chụp lại ảnh thanh địa chỉ/DevTools thật"],["Không có refresh/revoke token server", "Thiết kế refresh token quay vòng và logout server; nằm ngoài phần bắt buộc đã chốt"],["Khóa ghi RBAC mới chỉ bảo vệ trong một tiến trình Node", "Nếu chạy nhiều instance, chuyển sang khóa dùng chung/giao dịch ở database; test đồng thời một tiến trình hiện đã đạt"],["Seed dùng hồ sơ giả lập", "Đổi sang dữ liệu được xác minh/được phép sử dụng; giữ miền test cho QA"],["Danh sách role UI tải tối đa 100 role", "Phân trang hoặc tải mọi trang role để không thiếu khi dữ liệu lớn"],["Dev tooling có dependency cũ từ Newman", "Rà npm audit và tách runner khỏi production; production cài --omit=dev"]]);
 
   newPage("9. Khai báo sử dụng AI");
   p("Công cụ: OpenAI Codex. AI đã đọc yêu cầu, đề xuất kiến trúc, tạo/chỉnh sửa phần đáng kể mã nguồn backend/frontend, tạo test, dữ liệu giả lập, script thu bằng chứng và báo cáo này. Không khai báo là chỉ hỏi lỗi/cú pháp. Sinh viên chưa xác nhận đã tự hiểu và kiểm tra toàn bộ nội dung.");
@@ -262,7 +272,7 @@ function populate(questions) {
 
   newPage("10. Tự đánh giá và bài học");
   h("10.1. Tự chấm theo thang điểm của đề");
-  table(["Tiêu chí", "Điểm tối đa", "Tự chấm", "Căn cứ hiện có"], [["Xác thực", "1.0", "Chưa tự chấm", "Backend và UI local đã kiểm tra"],["Người dùng", "2.0", "Chưa tự chấm", "CRUD, tìm/lọc/phân trang trong test"],["RBAC Backend", "2.0", "Chưa tự chấm", "T01–T24 và experiments.json"],["Vai trò", "1.0", "Chưa tự chấm", "Test API và CRUD role UI"],["Chuẩn API", "1.0", "Chưa tự chấm", "HTTP/error contract tests"],["Frontend", "2.0", "Chưa tự chấm", "Bốn role, mobile, interceptor"],["Postman, dữ liệu, vấn đáp", "1.0", "Chưa tự chấm", "Postman local đạt; dữ liệu giả lập; chưa vấn đáp"],["Cộng điểm", "+1.0", "Không xác nhận", "Chưa deploy và không làm phần mở rộng"]]);
+  table(["Tiêu chí", "Điểm tối đa", "Tự chấm", "Căn cứ hiện có"], [["Xác thực", "1.0", "Chưa tự chấm", `Backend riêng và UI ${environmentLabel} đã kiểm tra`],["Người dùng", "2.0", "Chưa tự chấm", "CRUD, tìm/lọc/phân trang trong test"],["RBAC Backend", "2.0", "Chưa tự chấm", "T01–T24 và experiments.json"],["Vai trò", "1.0", "Chưa tự chấm", "Test API và CRUD role UI"],["Chuẩn API", "1.0", "Chưa tự chấm", "HTTP/error contract tests"],["Frontend", "2.0", "Chưa tự chấm", "Bốn role, mobile, interceptor"],["Postman, dữ liệu, vấn đáp", "1.0", "Chưa tự chấm", `Newman ${environmentLabel}; dữ liệu giả lập; chưa vấn đáp`],["Cộng điểm", "+1.0", "Không xác nhận", onlineVerified ? "Có triển khai online; không tự nhận điểm" : "Online chưa xác minh"]]);
   p("Không tự ghi điểm tổng khi thiếu xác nhận hiểu biết của sinh viên, kiểm thử mock, hồ sơ online và tiêu chí dữ liệu thật. Các test local đạt không đồng nghĩa bài đạt điểm tối đa.");
   h("10.2. Bài học");
   p("Các quan sát kỹ thuật có bằng chứng: (1) permission bị gỡ làm token cũ trả 403 ngay vì middleware đọc DB; (2) query có ký tự regex gây 500 nếu bỏ escape, nhưng 200 với source gốc; (3) UI ẩn nút vẫn cần backend chặn fetch trực tiếp. Đây là dữ kiện để sinh viên viết ba bài học cá nhân và điều sẽ làm khác nếu bắt đầu lại; chưa tự nhận các trải nghiệm này thay cho sinh viên.");
@@ -279,7 +289,7 @@ function renderHtml() {
     if (block.type === "code") return `<pre>${escape(block.text)}</pre>`;
     if (block.type === "table") return `<table><thead><tr>${block.headers.map((item)=>`<th>${escape(item)}</th>`).join("")}</tr></thead><tbody>${block.rows.map((row)=>`<tr>${row.map((item)=>`<td>${escape(item)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     if (block.type === "image") return `<figure><img src="data:image/png;base64,${fs.readFileSync(path.join(evidence,block.filename)).toString("base64")}"><figcaption>${escape(block.caption)}</figcaption></figure>`;
-    return `<table>${pages.filter((item)=>item.title&&item.title!=="MỤC LỤC").map((item)=>`<tr><td>${escape(item.title)}</td><td>${pages.indexOf(item)+1}</td></tr>`).join("")}</table>`;
+    return `<table>${pages.filter((item)=>item.title&&item.title!=="MỤC LỤC").map((item)=>`<tr><td>${escape(item.title)}</td><td>${pdfPageMap[pages.indexOf(item)] || pages.indexOf(item)+1}</td></tr>`).join("")}</table>`;
   };
   return `<!doctype html><html lang="vi"><meta charset="utf-8"><title>${baseName}</title><style>@page{size:A4;margin:17mm 18mm}body{font-family:Arial,sans-serif;color:#1c293d;font-size:10pt;line-height:1.35;margin:0}section{break-after:page}section:last-child{break-after:auto}h1{font-size:17pt;color:#124c6b;line-height:1.25;margin:0 0 14px}h2{font-size:12pt;margin:13px 0 7px}h3{font-size:10.5pt}p{margin:7px 0;overflow-wrap:anywhere}table{border-collapse:collapse;width:100%;margin:10px 0;font-size:8.5pt}th,td{border:1px solid #cbd5e1;text-align:left;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eaf1f7}tr,figure{break-inside:avoid}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f9;padding:9px;font:8pt Consolas,monospace}figure{margin:10px 0}img{width:100%;max-height:205px;object-fit:contain;object-position:left top;border:1px solid #dce3eb}figcaption{font-size:8.5pt;margin:5px 0;color:#475569}</style><body>${pages.map((item)=>`<section>${item.blocks.map(render).join("")}</section>`).join("")}</body></html>`;
 }
@@ -300,26 +310,46 @@ async function buildDocx() {
         children.push(new D.Paragraph({ children: [new D.ImageRun({ type: "png", data, transformation: { width: width*scale, height: height*scale } })] }));
         children.push(paragraph(block.caption));
       } else {
-        const rows = block.type === "toc" ? [["Nội dung", "Trang PDF"], ...pages.filter((value)=>value.title&&value.title!=="MỤC LỤC").map((value)=>[value.title,String(pages.indexOf(value)+1)])] : [block.headers,...block.rows];
+        const rows = block.type === "toc" ? [["Nội dung", "Trang PDF"], ...pages.filter((value)=>value.title&&value.title!=="MỤC LỤC").map((value)=>[value.title,String(pdfPageMap[pages.indexOf(value)] || pages.indexOf(value)+1)])] : [block.headers,...block.rows];
         children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, rows: rows.map((row,rowIndex)=>new D.TableRow({ tableHeader: rowIndex === 0, cantSplit: true, children: row.map((cell)=>new D.TableCell({ shading: rowIndex === 0 ? {fill:"EAF1F7"} : undefined, children: [new D.Paragraph({ spacing: { after: 50 }, children: [new D.TextRun({ text: String(cell), size: 17, bold: rowIndex===0 })] })] })) })) }));
       }
     }
   }
-  const doc = new D.Document({ creator: "Lê Minh Hoàng; tổng hợp với OpenAI Codex", title: "Báo cáo Fullstack RBAC – bản local, dữ liệu giả lập", description: "Chưa xác nhận hồ sơ online; khai báo AI tại mục 9.", styles: { default: { document: { run: { font: "Arial", size: 20 } } } }, sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 964, bottom: 964, left: 1020, right: 1020 } } }, footers: { default: new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun("RBAC • LOCAL / dữ liệu giả lập • Trang "), new D.TextRun({children:[D.PageNumber.CURRENT]})] })] }) }, children }] });
+  const doc = new D.Document({ creator: "Lê Minh Hoàng; tổng hợp với OpenAI Codex", title: `Báo cáo Fullstack RBAC – ${environmentLabel}, dữ liệu giả lập`, description: "Bằng chứng thực; khai báo AI tại mục 9.", features: { updateFields: true }, styles: { default: { document: { run: { font: "Arial", size: 20 } } } }, sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 964, bottom: 964, left: 1020, right: 1020 } } }, footers: { default: new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun(`RBAC • ${environmentLabel} / dữ liệu giả lập • Trang `), new D.TextRun({children:[D.PageNumber.CURRENT]})] })] }) }, children }] });
   fs.writeFileSync(path.join(root,`${baseName}.docx`), await D.Packer.toBuffer(doc));
 }
 
 async function main() {
   populate(await templateQuestions());
-  fs.writeFileSync(path.join(root,`${baseName}.html`), renderHtml());
-  await buildDocx();
+  const htmlPath = path.join(root, `${baseName}.html`);
+  const pdfPath = path.join(root, `${baseName}.pdf`);
+  const textPath = path.join(root, "backend/.runtime/report-pages.txt");
+  fs.mkdirSync(path.dirname(textPath), { recursive: true });
+  let physicalPages;
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   try {
     const page = await browser.newPage();
-    await page.goto(new URL(`file:///${path.join(root,`${baseName}.html`).replace(/\\/g,"/")}`).href);
-    await page.pdf({ path: path.join(root,`${baseName}.pdf`), format: "A4", printBackground: true, displayHeaderFooter: true, headerTemplate: "<span></span>", footerTemplate: '<div style="width:100%;text-align:center;font:9px Arial;color:#64748b">LOCAL • Dữ liệu giả lập • <span class="pageNumber"></span> / <span class="totalPages"></span></div>' });
+    for (let pass = 0; pass < 3; pass++) {
+      fs.writeFileSync(htmlPath, renderHtml());
+      await page.goto(new URL(`file:///${htmlPath.replace(/\\/g,"/")}`).href);
+      await page.pdf({ path: pdfPath, format: "A4", printBackground: true, displayHeaderFooter: true, headerTemplate: "<span></span>", footerTemplate: `<div style="width:100%;text-align:center;font:9px Arial;color:#64748b">${environmentLabel} • Dữ liệu giả lập • <span class="pageNumber"></span> / <span class="totalPages"></span></div>` });
+      execFileSync(process.env.PDFTOTEXT || "pdftotext", ["-layout", pdfPath, textPath]);
+      const extracted = fs.readFileSync(textPath, "utf8").split("\f").filter((text) => text.trim());
+      physicalPages = extracted.length;
+      const normalize = (text) => text.replace(/\s+/g, " ").trim();
+      const nextMap = pages.map((item, index) => {
+        if (!item.title || item.title === "MỤC LỤC") return index + 1;
+        const found = extracted.findIndex((text, pageIndex) => pageIndex >= 2 && normalize(text).startsWith(normalize(item.title)));
+        if (found < 0) throw new Error(`PDF heading not found: ${item.title}`);
+        return found + 1;
+      });
+      if (JSON.stringify(nextMap) === JSON.stringify(pdfPageMap)) break;
+      if (pass === 2) throw new Error("PDF table of contents did not stabilize.");
+      pdfPageMap = nextMap;
+    }
   } finally { await browser.close(); }
-  fs.writeFileSync(path.join(evidence,"report-manifest.json"), JSON.stringify({ generatedAt: new Date().toISOString(), sourceCommit: commit, contentPages: pages.length, syntheticData: true, deploymentVerified: false, files: ["docx","pdf","html"].map((ext)=>`${baseName}.${ext}`) },null,2));
+  await buildDocx();
+  fs.writeFileSync(path.join(evidence,"report-manifest.json"), JSON.stringify({ generatedAt: new Date().toISOString(), sourceCommit: commit, contentPages: pages.length, physicalPdfPages: physicalPages, pdfTableOfContents: pages.filter((item) => item.title && item.title !== "MỤC LỤC").map((item) => ({ title: item.title, page: pdfPageMap[pages.indexOf(item)] })), environment: environmentLabel, syntheticData: true, deploymentVerified: onlineVerified, files: ["docx","pdf","html"].map((ext)=>`${baseName}.${ext}`) },null,2));
   console.log(`Created DOCX, PDF and HTML report: ${pages.length} planned pages; source commit ${commit}`);
 }
 main().catch((error)=>{ console.error(error); process.exitCode=1; });

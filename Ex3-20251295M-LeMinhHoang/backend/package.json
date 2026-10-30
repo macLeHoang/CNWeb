@@ -12,6 +12,7 @@
     "test": "node --test --test-concurrency=1",
     "check:frontend": "node scripts/check-frontend.js",
     "verify:local": "node scripts/verify-local.js",
+    "verify:online": "node -r dotenv/config scripts/verify-local.js dotenv_config_path=.runtime/online.env",
     "verify:experiments": "node scripts/experiments.js",
     "verify:backend": "node scripts/record-tests.js",
     "verify:publishing": "node scripts/verify-publishing.js",

@@ -3,24 +3,33 @@ const path = require("node:path");
 const assert = require("node:assert/strict");
 const newman = require("newman");
 const { chromium } = require("playwright");
+require("dotenv").config({ quiet: true });
 
 const root = path.resolve(__dirname, "../..");
-const evidence = path.join(root, "evidence");
-const base = "http://127.0.0.1:3001/api/v1";
-const password = "Demo@2026";
+const online = Boolean(process.env.VERIFY_API_BASE);
+const evidence = path.join(root, "evidence", ...(online ? ["online"] : []));
+const base = (process.env.VERIFY_API_BASE || "http://127.0.0.1:3001/api/v1").replace(/\/$/, "");
+const frontendUrl = process.env.VERIFY_FRONTEND_URL || "http://127.0.0.1:5500/";
+const environment = online ? "ONLINE / synthetic data" : "LOCAL / synthetic data";
+if (online && (!base.startsWith("https://") || !frontendUrl.startsWith("https://"))) throw new Error("Online verification requires HTTPS API and frontend URLs.");
+const password = process.env.STUDENT_PASSWORD || (online ? "" : "Demo@2026");
+const passwords = Object.fromEntries(["admin", "manager", "auditor", "member"].map((key) => [key, process.env[`GRADER_${key.toUpperCase()}_PASSWORD`] || (online ? "" : "Demo@2026")]));
+if (!password || Object.values(passwords).some((value) => !value)) throw new Error("Missing verification passwords; supply STUDENT_PASSWORD and all GRADER_*_PASSWORD variables privately.");
+const passwordForEmail = (email) => passwords[email.match(/^gv\.(admin|manager|auditor|member)\./)?.[1]] || password;
 fs.mkdirSync(evidence, { recursive: true });
 const write = (name, data) => fs.writeFileSync(path.join(evidence, name), JSON.stringify(data, null, 2));
 
 async function runCollection() {
   const collection = JSON.parse(fs.readFileSync(path.join(root, "postman/Ex3-RBAC-T01-T24.postman_collection.json"), "utf8"));
   for (const variable of collection.variable) {
-    if (variable.key.endsWith("Password")) variable.value = password;
+    if (variable.key.endsWith("Password")) variable.value = passwords[variable.key.replace(/Password$/, "")] || password;
     if (variable.key === "baseUrl") variable.value = base;
     if (variable.key === "runEmail") variable.value = "";
   }
   const summary = await new Promise((resolve, reject) => newman.run({ collection, reporters: [] }, (error, result) => error ? reject(error) : resolve(result)));
+  if (summary.run.stats.assertions.total === 0) throw new Error("Collection did not execute any assertions.");
   const result = {
-    at: new Date().toISOString(), environment: "LOCAL / synthetic data", baseUrl: base,
+    at: new Date().toISOString(), environment, baseUrl: base,
     requests: summary.run.stats.requests, assertions: summary.run.stats.assertions,
     failures: summary.run.failures.map((failure) => ({ source: failure.source?.name, message: failure.error?.message })),
     executions: summary.run.executions.map((execution) => {
@@ -34,7 +43,7 @@ async function runCollection() {
 }
 
 async function loginApi(email) {
-  const response = await fetch(`${base}/auth/tokens`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ grantType: "password", email, password }) });
+  const response = await fetch(`${base}/auth/tokens`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ grantType: "password", email, password: passwordForEmail(email) }) });
   assert.equal(response.status, 200);
   return (await response.json()).accessToken;
 }
@@ -43,23 +52,40 @@ async function runBrowser() {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } });
   const page = await context.newPage();
+  page.setDefaultTimeout(60000);
+  const network = [];
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("Network.enable");
+  await cdp.send("Network.setCacheDisabled", { cacheDisabled: true });
+  cdp.on("Network.requestWillBeSent", ({ request, requestId, type }) => {
+    if (!request.url.startsWith(base)) return;
+    network.push({ requestId, type, method: request.method, url: request.url, authorizationPresent: Object.keys(request.headers).some((key) => key.toLowerCase() === "authorization") });
+  });
+  cdp.on("Network.responseReceived", ({ requestId, response }) => {
+    const item = network.findLast((row) => row.requestId === requestId);
+    if (item) Object.assign(item, { status: response.status, protocol: response.protocol, timing: response.timing, headers: Object.fromEntries(Object.entries(response.headers).filter(([key]) => /^(access-control-|content-type$)/i.test(key))) });
+  });
   const failures = [];
   page.on("pageerror", (error) => failures.push(error.message));
   const cases = [];
+  let completed = false;
   const shot = async (name) => {
-    await page.screenshot({ path: path.join(evidence, `${name}.png`), fullPage: true });
+    const filename = `${online ? name.replace("-local", "-online") : name}.png`;
+    await page.screenshot({ path: path.join(evidence, filename), fullPage: true });
+    write(`${filename}.json`, { at: new Date().toISOString(), environment, url: page.url(), apiBase: base, viewport: page.viewportSize(), capture: "Playwright Chrome viewport; browser address bar and DevTools are not included" });
   };
   const login = async (email) => {
-    await page.goto("http://127.0.0.1:5500/");
+    await page.goto(frontendUrl);
     await page.evaluate(() => sessionStorage.clear());
     await page.reload();
     await page.locator("#email").fill(email);
-    await page.locator("#password").fill(password);
+    await page.locator("#password").fill(passwordForEmail(email));
     await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
     await page.getByRole("button", { name: "Đăng xuất", exact: true }).waitFor();
   };
   try {
-    await page.goto("http://127.0.0.1:5500/");
+    await page.goto(frontendUrl);
+    if (online) assert.ok((await page.content()).includes(base), "Published frontend must reference the verified API");
     await page.locator("#email").fill("20251295m@example.test");
     await page.locator("#password").fill("Wrong@2026");
     await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
@@ -152,11 +178,11 @@ async function runBrowser() {
     await page.getByRole("heading", { name: "Hồ sơ của tôi", exact: true }).waitFor();
     assert.equal(await page.locator("nav button").count(), 1);
     await shot("S06-local-member");
-    const unauthorized = await page.evaluate(async () => {
+    const unauthorized = await page.evaluate(async (apiBase) => {
       const token = sessionStorage.getItem("rbac_token");
-      const response = await fetch("http://127.0.0.1:3001/api/v1/users", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ email: "hack@example.test", fullName: "Hack", password: "Hack@2026" }) });
+      const response = await fetch(`${apiBase}/users`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ email: "hack@example.test", fullName: "Hack", password: "Hack@2026" }) });
       return { status: response.status, body: await response.json() };
-    });
+    }, base);
     assert.equal(unauthorized.status, 403); write("member-console-result.json", unauthorized);
     cases.push("Member chỉ có Hồ sơ; gọi fetch POST trực tiếp bị backend chặn 403");
     await page.setViewportSize({ width: 390, height: 844 });
@@ -170,8 +196,10 @@ async function runBrowser() {
     await page.getByRole("button", { name: "Đăng nhập", exact: true }).waitFor();
     cases.push("Xóa token rồi gọi API quay về đăng nhập");
     assert.deepEqual(failures, []);
+    completed = true;
   } finally {
-    write("ui-results.json", { at: new Date().toISOString(), environment: "LOCAL / synthetic data", passed: cases, pageErrors: failures });
+    write("ui-results.json", { at: new Date().toISOString(), environment, frontendUrl, apiBase: base, completed, passed: cases, pageErrors: failures });
+    write("browser-network-results.json", { at: new Date().toISOString(), environment, source: "Chrome DevTools Protocol Network events; cache disabled; no request bodies or credentials saved", requests: network });
     await browser.close();
   }
 }
@@ -185,8 +213,11 @@ async function measure() {
     const body = await response.text();
     data.push({ at: new Date().toISOString(), url: `/users?page=1&limit=${limit}`, status: response.status, ms: +(performance.now() - start).toFixed(2), bytes: Buffer.byteLength(body) });
   }
-  const preflight = await fetch(`${base}/users/abc`, { method: "OPTIONS", headers: { Origin: "http://127.0.0.1:5500", "Access-Control-Request-Method": "PATCH", "Access-Control-Request-Headers": "authorization,content-type" } });
-  write("network-results.json", { environment: "LOCAL; measurements via Node fetch, not DevTools", measurements: data, preflight: { status: preflight.status, headers: Object.fromEntries([...preflight.headers].filter(([key]) => key.startsWith("access-control"))) }, authorizationExample: `Bearer ${token.slice(0,10)}… [redacted]` });
+  const origin = new URL(frontendUrl).origin;
+  const preflight = await fetch(`${base}/users/abc`, { method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": "PATCH", "Access-Control-Request-Headers": "authorization,content-type" } });
+  assert.equal(preflight.status, 204);
+  assert.equal(preflight.headers.get("access-control-allow-origin"), origin);
+  write("network-results.json", { environment, source: "Node fetch; single samples, not DevTools timing or a cold-start measurement", origin, measurements: data, preflight: { status: preflight.status, headers: Object.fromEntries([...preflight.headers].filter(([key]) => key.startsWith("access-control"))) }, authorizationExample: "Bearer [redacted]" });
 }
 
 async function main() { await runCollection(); await runBrowser(); await measure(); console.log("Browser and network evidence collected."); }

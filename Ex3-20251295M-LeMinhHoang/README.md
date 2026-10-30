@@ -29,7 +29,7 @@ Nếu dùng MongoDB/Atlas riêng:
 
 3. Mở thư mục `frontend` bằng Live Server tại `http://127.0.0.1:5500`. Không mở bằng `file://`.
 
-Frontend mặc định gọi `http://localhost:3001/api/v1`. Khi triển khai, chỉ thay hằng `API_BASE` trong `frontend/index.html` bằng URL Render.
+Frontend được cấu hình gọi `https://ex3-rbac-20251295m.onrender.com/api/v1`. Khi chạy demo local, đổi hằng `API_BASE` trong `frontend/index.html` thành `http://localhost:3001/api/v1`, rồi hoàn nguyên trước khi push.
 
 ## Kiểm thử
 
@@ -47,18 +47,28 @@ npm.cmd run package:submission
 
 Import `postman/Ex3-RBAC-T01-T24.postman_collection.json`, điền bốn mật khẩu collection variable, chạy `Setup`, `T01–T24`, rồi `Cleanup`. Trước một lượt chạy mới, để trống biến `runEmail`. Runner tự động dùng mật khẩu demo trong bộ nhớ; không lưu token đầy đủ vào bằng chứng. Kết quả kiểm chứng và ảnh local nằm trong `evidence/`.
 
+## Kiểm thử online và thông tin riêng
+
+Tài nguyên đã được kiểm kê trước khi triển khai: Atlas project `CNWeb-RBAC`, cluster Free `rbac-cluster` ở Singapore được tái sử dụng. User dịch vụ `ex3-render-20251295m` chỉ có `readWrite` trên database `it4409_rbac`, giới hạn cluster này. Không sử dụng mật khẩu demo công khai cho các tài khoản online.
+
+- URI riêng nằm trong `backend/.env`; các mật khẩu kiểm thử/JWT nằm trong `backend/.runtime/online.env`. Cả hai đều bị Git và script đóng gói loại bỏ.
+- `node scripts/prepare-online.js --check` kiểm kê database chỉ đọc. Chỉ seed khi cả ba collection trống; script không reset hoặc đổi mật khẩu dữ liệu đã tồn tại.
+- `npm.cmd run verify:online` nhận URL và mật khẩu từ `.runtime/online.env`, chạy Newman và Chrome trên HTTPS; lưu dưới `evidence/online/`.
+- `node -r dotenv/config scripts/verify-publishing.js dotenv_config_path=.runtime/online.env` xác minh Pages/API và trạng thái CI thực.
+- Mật khẩu tài khoản chấm được cấp riêng trong `backend/.runtime/grader-access.md`; chủ bài chuyển riêng cho giảng viên, không commit hoặc đưa vào báo cáo công khai.
+
 ## Báo cáo
 
-Mở `Ex3-RBAC-20251295M-LeMinhHoang.docx` hoặc `.pdf` ở thư mục Ex3. HTML cùng tên là bản tự chứa ảnh để xem/in. Báo cáo bám cấu trúc mục 1–10, giữ câu hỏi mục 8 và ghi trung thực các phần chưa thực hiện. Chưa có deploy online, ảnh DevTools/Atlas/Render, thông tin lớp/giảng viên và xác nhận trải nghiệm cá nhân. Đây là bản kỹ thuật local, chưa phải bộ hồ sơ đạt toàn bộ tiêu chí nộp bài.
+Mở `Ex3-RBAC-20251295M-LeMinhHoang.docx` hoặc `.pdf` ở thư mục Ex3. HTML cùng tên tự chứa ảnh. Báo cáo giữ cấu trúc mục 1–10 và câu hỏi mục 8. Trạng thái online chỉ được bật sau khi Newman và browser online thành công; xem `evidence/report-manifest.json`. Mục lục PDF được đối chiếu với trang thực bằng `pdftotext` (cần cài và có trong PATH; có thể chỉ định biến `PDFTOTEXT`). Ảnh viewport không có thanh địa chỉ/DevTools; metadata JSON không được coi là ảnh dashboard. Thông tin lớp/giảng viên và xác nhận trải nghiệm cá nhân phải do sinh viên bổ sung.
 
-`npm.cmd run package:submission` tạo `Ex3-20251295M-LeMinhHoang-Local.zip`, gồm source, lockfile, `.env.example`, Postman, báo cáo và bằng chứng; loại `node_modules`, `.env`, database local và cache.
+`npm.cmd run package:submission` tạo ZIP hậu tố `Submission` khi API online đã được xác minh, hoặc `Local` nếu chưa. ZIP gồm source, lockfile, `.env.example`, Postman, báo cáo và bằng chứng; loại `node_modules`, `.env`, `.runtime`, database local và cache. SHA-256 được ghi trong `evidence/submission-manifest.json` bên ngoài ZIP.
 
-Workflow `.github/workflows/ex3-rbac.yml` sẽ tự chạy backend tests, kiểm tra JSX và thí nghiệm bảo mật khi push/PR thay đổi Ex3. Chưa chạy trên GitHub khi chưa đăng nhập và push. Khóa ghi trong `middleware/rbac-write.js` bảo vệ super-admin cuối cùng trước thao tác đồng thời ở một tiến trình Node; muốn chạy nhiều instance cần cơ chế khóa database dùng chung.
+Workflow `.github/workflows/ex3-rbac.yml` tự chạy backend tests và thí nghiệm bảo mật khi push/PR thay đổi Ex3. Trạng thái từng lần chạy nằm trong `evidence/publication-results.json`. Khóa ghi trong `middleware/rbac-write.js` bảo vệ super-admin cuối cùng trước thao tác đồng thời ở một tiến trình Node; muốn chạy nhiều instance cần cơ chế khóa database dùng chung.
 
 ## Deploy
 
 - MongoDB Atlas: database `it4409_rbac`; chỉ cho phép IP phát triển và outbound IP của Render.
-- Render Web Service: Root Directory `Ex3-20251295M-LeMinhHoang/backend`, Build Command `npm ci --omit=dev`, Start Command `npm start`. Có cấu hình `render.yaml`.
+- Render Web Service Free: `ex3-rbac-20251295m`, Singapore, https://ex3-rbac-20251295m.onrender.com. Plugin không hỗ trợ đặt Root Directory nên lệnh thực là `cd Ex3-20251295M-LeMinhHoang/backend && npm ci --omit=dev` và `cd Ex3-20251295M-LeMinhHoang/backend && npm start`. `render.yaml` giữ cấu hình tương đương cho Blueprint; không Apply lại để tạo trùng service.
 - Render secrets: `MONGODB_URI`, `JWT_SECRET`, `ACCESS_TOKEN_TTL`, `CORS_ORIGINS`.
 - GitHub Pages: frontend nằm tại `Ex3-20251295M-LeMinhHoang/frontend/`; CORS phải cho phép origin `https://maclehoang.github.io`.
 

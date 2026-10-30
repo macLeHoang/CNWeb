@@ -18,3 +18,4 @@ Tệp này là dữ liệu nguồn để khai báo trung thực tại mục 9 c�
 - Sinh viên phải tự đọc, chạy, sửa và giải thích được từng phần trước khi nộp/vấn đáp.
 - Các câu trả lời phân tích ở mục 8 phải do sinh viên tự viết từ commit, log, ảnh và thí nghiệm thật; không sao chép câu trả lời do AI tạo.
 - Nếu AI gợi ý sai trong các lần làm tiếp theo, ghi lại gợi ý, dấu hiệu phát hiện và cách sửa thực tế.
+| 30/10/2026 | OpenAI Codex + Render/Atlas plugins | Triển khai theo yêu cầu tiếp tục | Kiểm kê và tái sử dụng project/cluster Atlas; user dịch vụ quyền tối thiểu; seed khi database trống; một Render Free service; runner HTTPS và báo cáo theo môi trường thực | Seed 25 user/5 role/10 permission; local Newman 37 assertions và Chrome 11 kịch bản đạt; deploy đầu lỗi access list có log thật, đã thêm hai CIDR từ Dashboard do chủ bài cung cấp |
