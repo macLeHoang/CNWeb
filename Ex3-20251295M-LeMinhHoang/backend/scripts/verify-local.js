@@ -146,7 +146,11 @@ async function runBrowser() {
     await uiRoleRow.getByRole("button", { name: "Sửa", exact: true }).click();
     await page.locator("#role-name").fill("Vai trò UI đã sửa");
     await page.getByRole("dialog").getByText("users:read", { exact: true }).click();
+    const roleUpdate = page.waitForResponse((response) => response.url().includes("/roles/") && response.request().method() === "PATCH");
+    const permissionUpdate = page.waitForResponse((response) => response.url().endsWith("/permissions") && response.request().method() === "PUT");
     await page.getByRole("button", { name: "Lưu", exact: true }).click();
+    assert.equal((await roleUpdate).status(), 200);
+    assert.equal((await permissionUpdate).status(), 200);
     await page.getByRole("dialog").waitFor({ state: "hidden" });
     await uiRoleRow.getByText("users:read", { exact: true }).waitFor();
     page.once("dialog", (dialog) => dialog.accept());

@@ -72,10 +72,10 @@ function populate(questions) {
   p("Học phần: Công nghệ Web và Dịch vụ trực tuyến (IT4409)");
   table(["Thông tin", "Nội dung"], [
     ["Họ và tên", "Lê Minh Hoàng"], ["MSSV", "20251295M"],
-    ["Lớp / Mã lớp học", "Chưa được cung cấp; không suy đoán."],
-    ["Email sinh viên", "Chưa xác nhận email SIS. Email demo: 20251295m@example.test."],
-    ["Nhóm BTL", "Chưa được cung cấp. Các tên trong seed là giả lập."],
-    ["Giảng viên", "Chưa được cung cấp."], ["Thời điểm tạo báo cáo", timestamp],
+    ["Lớp / Mã lớp học", "IT4409-1-26 (26.1A01)"],
+    ["Email sinh viên", "hoang.lm251295M@sis.hust.edu.vn (do sinh viên cung cấp)."],
+    ["Nhóm BTL", "Không có nhóm BTL. Các bạn học trong seed là giả lập."],
+    ["Giảng viên", "ThS. Nguyễn Mạnh Tuấn"], ["Thời điểm tạo báo cáo", timestamp],
   ]);
   h(`Bản ${environmentLabel.toLowerCase()} với dữ liệu giả lập`, 2);
   p(onlineVerified ? "Báo cáo được AI tổng hợp từ mã nguồn, kiểm thử API online và ảnh viewport Chrome của GitHub Pages gọi backend Render kết nối MongoDB Atlas. Các trạng thái triển khai lấy từ plugin chính thức; kết quả Newman và browser lưu dưới evidence/online. Ảnh viewport không chứa thanh địa chỉ hoặc giao diện DevTools; JSON không được coi là ảnh dashboard. Mục 8 giữ dữ kiện kỹ thuật và các phần sinh viên cần tự xác nhận." : "Báo cáo được AI tổng hợp từ mã nguồn, kết quả kiểm thử và ảnh chụp thực tế ở localhost. Backend online chưa được xác minh đầy đủ. Mục 8 ghi dữ kiện kỹ thuật để sinh viên tự phân tích.");
@@ -110,7 +110,7 @@ function populate(questions) {
   const functions = ["Đăng nhập POST /auth/tokens, GET /me", "Middleware authenticate và requirePermission", "GET /users tìm kiếm/lọc/sort/phân trang", "POST /users, allow-list, mật khẩu mạnh", "PATCH /users và khóa/mở khóa", "DELETE /users xóa mềm", "Gán/gỡ vai trò idempotent, chống leo thang", "CRUD vai trò, thay quyền, bảo vệ role", "Danh mục quyền và quyền của vai trò", "Response/mã lỗi thống nhất", "Frontend đăng nhập và interceptor", "Hiển thị theo quyền", "Trang Người dùng và các modal", "Trang Vai trò và modal", "Responsive dưới 768px", "Triển khai online", "Phần mở rộng", "Dữ liệu người thật trong seed"];
   table(["#", "Chức năng", "Trạng thái"], functions.map((text, index) => [index + 1, text, index < 15 ? `Đã kiểm tra ${environmentLabel.toLowerCase()}` : index === 16 ? "Không làm, ngoài phạm vi đã chốt" : index === 17 ? "Giả lập theo yêu cầu; chưa đạt tiêu chí dữ liệu thật" : onlineVerified ? "Đã xác minh online" : "Chưa xác minh"]));
   h("2.2. Tóm tắt (5–8 câu)");
-  p(`Ứng dụng có 18 endpoint REST và frontend React cho quản lý người dùng, vai trò và hồ sơ cá nhân. Quyền được hợp từ các vai trò và đọc lại trong từng request. Backend đạt ${backend.total} test tự động ở môi trường kiểm thử riêng; Newman ${environmentLabel} đạt ${postman.assertions.total} assertion. Chrome ${environmentLabel} hoàn thành ${ui.passed.length} kịch bản giao diện, gồm bốn role và mobile. Seed có 25 tài khoản giả lập với miền example.test; kiểm thử có thể tạo thêm tài khoản tạm đã xóa mềm. ${onlineVerified ? "GitHub Pages gọi backend Render kết nối Atlas đã được kiểm chứng." : "Backend online chưa được xác minh đầy đủ."} Thông tin lớp/giảng viên, dữ liệu sinh viên thật, ảnh đầy đủ thanh địa chỉ/DevTools và nhận xét cá nhân vẫn cần bổ sung.`);
+  p(`Ứng dụng có 18 endpoint REST và frontend React cho quản lý người dùng, vai trò và hồ sơ cá nhân. Quyền được hợp từ các vai trò và đọc lại trong từng request. Backend đạt ${backend.total} test tự động ở môi trường kiểm thử riêng; Newman ${environmentLabel} đạt ${postman.assertions.total} assertion. Chrome ${environmentLabel} hoàn thành ${ui.passed.length} kịch bản giao diện, gồm bốn role và mobile. Seed ban đầu có 25 tài khoản giả lập với miền example.test; kiểm thử có thể tạo thêm tài khoản tạm đã xóa mềm. ${onlineVerified ? "GitHub Pages gọi backend Render kết nối Atlas đã được kiểm chứng." : "Backend online chưa được xác minh đầy đủ."} Thông tin lớp/giảng viên/email được sinh viên cung cấp; dữ liệu bạn học thật, ảnh đầy đủ thanh địa chỉ/DevTools và nhận xét cá nhân vẫn cần bổ sung.`);
 
   newPage("3. Quá trình phát triển");
   h("3.1. Nhật ký thực hiện");
@@ -154,7 +154,7 @@ function populate(questions) {
   h("5.3. Các bước triển khai");
   p(onlineVerified ? "Đã liệt kê tài nguyên trước khi tạo; tái sử dụng Atlas; kiểm tra database trước seed; cấu hình secret và CORS; triển khai một Web Service Free; đổi API_BASE sang Render; push frontend; chạy collection và UI trên HTTPS. Seed chỉ chạy có chủ đích, không nằm trong start command. Lệnh build/start thực tế và commit deploy có trong deployment-results.json." : "Đã chuẩn bị cấu hình và runner. Các bước chỉ được xác nhận hoàn tất khi có trạng thái công cụ cùng kiểm thử online tương ứng.");
   p("Hình S01/S02. Chưa thu được ảnh dashboard Render/Atlas có thanh địa chỉ. Metadata thật từ plugin nằm trong evidence/deployment-results.json; không dựng ảnh dashboard giả để thay thế.");
-  if (deployment) code(JSON.stringify({ checkedAt: deployment.checkedAt, render: deployment.render, atlas: deployment.atlas, seed: deployment.seed }, null, 2));
+  if (deployment) table(["Metadata từ công cụ", "Giá trị đã kiểm chứng"], [["Render", `${deployment.render.name}; ${deployment.render.plan}; ${deployment.render.region}`], ["Deploy", `${deployment.render.deploy.id}: ${deployment.render.deploy.status}`], ["Commit deploy", deployment.render.deploy.commit.id], ["Atlas", `${deployment.atlas.project} / ${deployment.atlas.cluster}; ${deployment.atlas.instanceType}; ${deployment.atlas.region}`], ["Database user", `${deployment.atlas.databaseUser}; ${deployment.atlas.userRole} trên ${deployment.atlas.database}`], ["Network Access", `${deployment.atlas.accessListEntries || "Chưa ghi nhận"} mục; các dải Render do chủ tài khoản sao chép từ Dashboard`], ["Seed ban đầu", deployment.seed ? "Database trống → 25 users, 5 roles, 10 permissions; không reset" : "Xem atlas-seed-results.json"]]);
 
   newPage("5.4. Sự cố khi triển khai");
   p(deployment?.incidents?.length ? deployment.incidents.join("\n") : "Không có sự cố online được ghi nhận trong dữ liệu triển khai hiện có; không suy đoán lỗi. Kết nối trực tiếp Atlas qua plugin đã trả Internal error, nên dùng URI do chủ tài khoản cung cấp trong .env cho seed và backend; không khai thác mật khẩu/cookie trình duyệt.");
