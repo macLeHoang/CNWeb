@@ -1,0 +1,40 @@
+name: Ex3 RBAC checks
+
+on:
+  push:
+    paths:
+      - 'Ex3-20251295M-LeMinhHoang/**'
+      - '.github/workflows/ex3-rbac.yml'
+  pull_request:
+    paths:
+      - 'Ex3-20251295M-LeMinhHoang/**'
+      - '.github/workflows/ex3-rbac.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Ex3-20251295M-LeMinhHoang/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.12.0'
+          cache: npm
+          cache-dependency-path: Ex3-20251295M-LeMinhHoang/backend/package-lock.json
+      - run: npm ci
+      - run: npm run verify:backend
+      - run: npm run verify:experiments
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ex3-backend-evidence
+          path: |
+            Ex3-20251295M-LeMinhHoang/evidence/backend-results.json
+            Ex3-20251295M-LeMinhHoang/evidence/backend-tests.txt
+            Ex3-20251295M-LeMinhHoang/evidence/experiments.json

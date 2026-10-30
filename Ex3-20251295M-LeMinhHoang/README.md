@@ -53,6 +53,8 @@ Mở `Ex3-RBAC-20251295M-LeMinhHoang.docx` hoặc `.pdf` ở thư mục Ex3. HTM
 
 `npm.cmd run package:submission` tạo `Ex3-20251295M-LeMinhHoang-Local.zip`, gồm source, lockfile, `.env.example`, Postman, báo cáo và bằng chứng; loại `node_modules`, `.env`, database local và cache.
 
+Workflow `.github/workflows/ex3-rbac.yml` sẽ tự chạy backend tests, kiểm tra JSX và thí nghiệm bảo mật khi push/PR thay đổi Ex3. Chưa chạy trên GitHub khi chưa đăng nhập và push. Khóa ghi trong `middleware/rbac-write.js` bảo vệ super-admin cuối cùng trước thao tác đồng thời ở một tiến trình Node; muốn chạy nhiều instance cần cơ chế khóa database dùng chung.
+
 ## Deploy
 
 - MongoDB Atlas: database `it4409_rbac`; chỉ cho phép IP phát triển và outbound IP của Render.

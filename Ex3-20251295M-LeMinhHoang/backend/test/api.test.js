@@ -231,6 +231,33 @@ test("Các endpoint và hành vi bổ sung", async (t) => {
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
   });
+  await t.test("Hai thao tác đồng thời vẫn giữ một super-admin active", async (context) => {
+    const second = await addUser("second-admin@example.test", "Quản trị viên thứ hai", ["super-admin"]);
+    const operator = await login("operator@example.test");
+    const originalCount = User.countDocuments.bind(User);
+    context.mock.method(User, "countDocuments", async (filter) => {
+      const count = await originalCount(filter);
+      // Widen the read/write race so the previous unguarded implementation fails.
+      if (filter?.status === "active") await new Promise((resolve) => setTimeout(resolve, 40));
+      return count;
+    });
+    try {
+      for (const action of ["lock", "delete", "remove-role"]) {
+        await User.updateMany({ _id: { $in: [users.admin._id, second._id] } }, { $set: { status: "active", roles: [roles["super-admin"]._id] } });
+        const responses = await Promise.all([users.admin, second].map((target) => {
+          const url = `/api/v1/users/${target._id}`;
+          if (action === "lock") return api.patch(url).set(auth(operator)).send({ status: "locked" });
+          if (action === "delete") return api.delete(url).set(auth(operator));
+          return api.delete(`${url}/roles/${roles["super-admin"]._id}`).set(auth(operator));
+        }));
+        assert.deepEqual(responses.map((response) => response.status).sort(), action === "lock" ? [200, 409] : [204, 409]);
+        assert.equal(await originalCount({ status: "active", roles: roles["super-admin"]._id }), 1);
+      }
+    } finally {
+      await User.updateOne({ _id: users.admin._id }, { $set: { status: "active", roles: [roles["super-admin"]._id] } });
+      await User.deleteOne({ _id: second._id });
+    }
+  });
   await t.test("GET /me trả profile và quyền đã sắp xếp", async () => {
     const response = await api.get("/api/v1/me").set(auth(tokens.admin));
     assert.equal(response.status, 200);

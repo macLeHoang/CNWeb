@@ -79,7 +79,7 @@ function populate(questions) {
   newPage("1. Thông tin nộp bài");
   h("1.1. Đường dẫn");
   table(["Hạng mục", "Địa chỉ / trạng thái"], [
-    ["Repository", "https://github.com/macLeHoang/CNWeb — chưa push các commit Ex3 trong phiên này."],
+    ["Repository", "https://github.com/macLeHoang/CNWeb — chưa push: git push --dry-run xác nhận máy chưa đăng nhập GitHub."],
     ["Commit mã nguồn đối chiếu", commit],
     ["Frontend local", "http://127.0.0.1:5500/"], ["Backend local", "http://127.0.0.1:3001/api/v1"],
     ["Frontend / Backend online", "Chưa triển khai. Chưa có URL backend được xác nhận."],
@@ -108,7 +108,7 @@ function populate(questions) {
   table(["Ngày", "Công việc", "Thời lượng", "Commit"], [...logs].reverse().slice(-12).map(([hash,date,message]) => [date, message, "Không đo", hash]));
   h("3.2. Lịch sử commit");
   code(logs.map(([hash,date,message]) => `${hash} ${date} ${message}`).join("\n"));
-  p("Các commit mới chưa push. Permalink trong báo cáo được tạo từ commit local và chỉ truy cập được sau khi push đúng commit lên repository.");
+  p("Các commit mới chưa push vì GitHub yêu cầu đăng nhập (kiểm tra dry-run đã thực hiện). Permalink trong báo cáo được tạo từ commit local và chỉ truy cập được sau khi push đúng commit lên repository. Workflow .github/workflows/ex3-rbac.yml đã chuẩn bị để tự chạy kiểm thử sau khi push; chưa có kết quả GitHub Actions online.");
   h("3.3. Cấu trúc thư mục thực tế");
   code("backend/\n  app.js, server.js, seed.js, seed-data.js\n  models/{Permission,Role,User}.js\n  middleware/auth.js\n  routes/{auth,users,roles,permissions}.js\n  utils/{http,rbac}.js\n  scripts/{demo,verify-local,experiments,record-tests,build-report}.js\n  test/{api,seed}.test.js\nfrontend/index.html\npostman/Ex3-RBAC-T01-T24.postman_collection.json\nevidence/\nrender.yaml, README.md, AI-LOG.md");
 
@@ -205,7 +205,7 @@ function populate(questions) {
   const q = (number) => { const question = questions[number-1]; h(question.title); question.prompts.forEach(p); };
   q(1);
   h("Dữ kiện để sinh viên tự trả lời", 3);
-  table(["Thứ tự", "Thành phần", "Vai trò"], [[1,"CORS / express.json","Kiểm tra browser origin và parse JSON"],[2,"authenticate","JWT.verify; tìm user active; populate roles; hợp permission"],[3,'requirePermission("roles:assign")',"Thiếu quyền trả 403 FORBIDDEN"],[4,"loadUser → loadRole","Kiểm tra ObjectId; tài nguyên thiếu trả 404"],[5,"missingPermissions","Role vượt quyền trả 403 PRIVILEGE_ESCALATION"],[6,"User.updateOne $addToSet","Thêm idempotent; trả 204 không body"]]);
+  table(["Thứ tự", "Thành phần", "Vai trò"], [[1,"CORS / express.json","Kiểm tra browser origin và parse JSON"],[2,"authenticate","JWT.verify; tìm user active; populate roles; hợp permission"],[3,'requirePermission("roles:assign")',"Thiếu quyền trả 403 FORBIDDEN"],[4,"serializeRbacWrite","Chờ lượt ghi trong cùng tiến trình Node; giữ khóa đến khi xử lý xong"],[5,"loadUser → loadRole","Nạp lại tài nguyên sau khi lấy khóa; tài nguyên thiếu trả 404"],[6,"missingPermissions","Role vượt quyền trả 403 PRIVILEGE_ESCALATION"],[7,"User.updateOne $addToSet","Thêm idempotent; trả 204 không body; giải phóng khóa trong finally"]]);
   code(JSON.stringify(experiments.trace, null, 2));
   p("Hình S17. Log được thu trong wrapper tạm của middleware authenticate trên database thử nghiệm riêng; chưa có ảnh console log. Gán auditor trả 204; nếu gán super-admin bằng manager, kiểm tra missingPermissions chặn trước updateOne.");
   p(ref("backend/routes/users.js", 'router.put("/:userId/roles/:roleId"'));
@@ -249,7 +249,7 @@ function populate(questions) {
   q(9);
   p("Ghi chú thiết kế, chưa implement: thêm departmentId vào User và dữ liệu ngữ cảnh quản lý; không lấy phạm vi khoa từ client để quyết định quyền. Tạo middleware kiểm tra scope sau authenticate, áp bộ lọc departmentId cho GET /users và kiểm tra target ở PATCH/gán role. Cần tránh IDOR khi gọi userId thuộc khoa khác, tránh gán role quản trị toàn hệ thống thông qua manager khoa và không cho tự sửa departmentId để vượt phạm vi. Test phải có hai khoa, cùng permission nhưng khác phạm vi. Sinh viên tự quyết định endpoint/permission mới và giải thích trên mô hình của mình.");
   q(10);
-  table(["Hạn chế cụ thể", "Hướng cải thiện nếu có thêm thời gian"], [["Chưa online; demo chạy local và cần mạng cho CDN", "Kết nối tài khoản dịch vụ, deploy, kiểm tra CORS/HTTPS và chụp lại ảnh đúng template"],["Không có refresh/revoke token server", "Thiết kế refresh token quay vòng và logout server; nằm ngoài phần bắt buộc đã chốt"],["Bảo vệ super-admin cuối cùng dùng count rồi write", "Bổ sung cơ chế đồng bộ/giao dịch phù hợp khi có request đồng thời hoặc nhiều instance"],["Seed dùng hồ sơ giả lập", "Đổi sang dữ liệu được xác minh/được phép sử dụng; giữ miền test cho QA"],["Danh sách role UI tải tối đa 100 role", "Phân trang hoặc tải mọi trang role để không thiếu khi dữ liệu lớn"],["Dev tooling có dependency cũ từ Newman", "Rà npm audit và tách runner khỏi production; production cài --omit=dev"]]);
+  table(["Hạn chế cụ thể", "Hướng cải thiện nếu có thêm thời gian"], [["Chưa online; demo chạy local và cần mạng cho CDN", "Kết nối tài khoản dịch vụ, deploy, kiểm tra CORS/HTTPS và chụp lại ảnh đúng template"],["Không có refresh/revoke token server", "Thiết kế refresh token quay vòng và logout server; nằm ngoài phần bắt buộc đã chốt"],["Khóa ghi RBAC mới chỉ bảo vệ trong một tiến trình Node", "Nếu chạy nhiều instance, chuyển sang khóa dùng chung/giao dịch ở database; test đồng thời một tiến trình hiện đã đạt"],["Seed dùng hồ sơ giả lập", "Đổi sang dữ liệu được xác minh/được phép sử dụng; giữ miền test cho QA"],["Danh sách role UI tải tối đa 100 role", "Phân trang hoặc tải mọi trang role để không thiếu khi dữ liệu lớn"],["Dev tooling có dependency cũ từ Newman", "Rà npm audit và tách runner khỏi production; production cài --omit=dev"]]);
 
   newPage("9. Khai báo sử dụng AI");
   p("Công cụ: OpenAI Codex. AI đã đọc yêu cầu, đề xuất kiến trúc, tạo/chỉnh sửa phần đáng kể mã nguồn backend/frontend, tạo test, dữ liệu giả lập, script thu bằng chứng và báo cáo này. Không khai báo là chỉ hỏi lỗi/cú pháp. Sinh viên chưa xác nhận đã tự hiểu và kiểm tra toàn bộ nội dung.");

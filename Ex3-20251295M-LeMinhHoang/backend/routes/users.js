@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Role = require("../models/Role");
 const { authenticate, requirePermission } = require("../middleware/auth");
 const { missingPermissions, isLastSuperAdmin } = require("../utils/rbac");
+const { serializeRbacWrite } = require("../middleware/rbac-write");
 const {
   fail, detail, notAllowedFields, unknownQueryFields, isObjectId, parsePaging,
   parseSort, escapeRegex, pageMeta, userView, roleSummary,
@@ -89,7 +90,7 @@ router.post("/", requirePermission("users:create"), async (req, res) => {
 
 router.get("/:userId", requirePermission("users:read"), loadUser, (req, res) => res.json(userView(req.target)));
 
-router.patch("/:userId", requirePermission("users:update"), loadUser, async (req, res) => {
+router.patch("/:userId", requirePermission("users:update"), serializeRbacWrite(loadUser, async (req, res) => {
   const body = req.body || {};
   const details = notAllowedFields(body, ["fullName", "phone", "email", "status"]);
   if (body.status !== undefined && !["active", "locked"].includes(body.status)) details.push(detail("status", "INVALID_VALUE", "status phải là active hoặc locked."));
@@ -105,29 +106,29 @@ router.patch("/:userId", requirePermission("users:update"), loadUser, async (req
   for (const key of ["fullName", "phone", "email", "status"]) if (key in body) req.target[key] = body[key];
   await req.target.save();
   return res.json(userView(req.target));
-});
+}));
 
-router.delete("/:userId", requirePermission("users:delete"), loadUser, async (req, res) => {
+router.delete("/:userId", requirePermission("users:delete"), serializeRbacWrite(loadUser, async (req, res) => {
   if (String(req.target._id) === String(req.user._id)) return fail(res, 403, "SELF_ACTION_FORBIDDEN", "Bạn không thể tự xóa tài khoản của mình.");
   if (await isLastSuperAdmin(req.target)) return fail(res, 409, "LAST_SUPER_ADMIN", "Không thể xóa super-admin đang hoạt động cuối cùng.");
   req.target.status = "deleted";
   await req.target.save();
   return res.status(204).end();
-});
+}));
 
 router.get("/:userId/roles", requirePermission("users:read"), loadUser, (req, res) => {
   const data = req.target.roles.map(roleSummary);
   return res.json({ data, meta: { totalItems: data.length } });
 });
 
-router.put("/:userId/roles/:roleId", requirePermission("roles:assign"), loadUser, loadRole, async (req, res) => {
+router.put("/:userId/roles/:roleId", requirePermission("roles:assign"), serializeRbacWrite(loadUser, loadRole, async (req, res) => {
   const missing = missingPermissions(req.role.permissions, req.permissions);
   if (missing.length) return fail(res, 403, "PRIVILEGE_ESCALATION", `Không thể gán vai trò '${req.role.code}' vì bạn không có quyền: ${missing.join(", ")}.`);
   await User.updateOne({ _id: req.target._id }, { $addToSet: { roles: req.role._id } });
   return res.status(204).end();
-});
+}));
 
-router.delete("/:userId/roles/:roleId", requirePermission("roles:assign"), loadUser, loadRole, async (req, res) => {
+router.delete("/:userId/roles/:roleId", requirePermission("roles:assign"), serializeRbacWrite(loadUser, loadRole, async (req, res) => {
   if (String(req.target._id) === String(req.user._id)) return fail(res, 403, "SELF_ACTION_FORBIDDEN", "Bạn không thể tự gỡ vai trò của mình.");
   const missing = missingPermissions(req.role.permissions, req.permissions);
   if (missing.length) return fail(res, 403, "PRIVILEGE_ESCALATION", `Không thể gỡ vai trò '${req.role.code}' vì bạn không có quyền: ${missing.join(", ")}.`);
@@ -135,6 +136,6 @@ router.delete("/:userId/roles/:roleId", requirePermission("roles:assign"), loadU
   if (assigned && req.role.code === "super-admin" && await isLastSuperAdmin(req.target)) return fail(res, 409, "LAST_SUPER_ADMIN", "Không thể gỡ vai trò của super-admin đang hoạt động cuối cùng.");
   await User.updateOne({ _id: req.target._id }, { $pull: { roles: req.role._id } });
   return res.status(204).end();
-});
+}));
 
 module.exports = router;
