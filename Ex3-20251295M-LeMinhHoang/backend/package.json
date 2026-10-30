@@ -14,6 +14,7 @@
     "verify:local": "node scripts/verify-local.js",
     "verify:experiments": "node scripts/experiments.js",
     "verify:backend": "node scripts/record-tests.js",
+    "verify:publishing": "node scripts/verify-publishing.js",
     "report": "node scripts/build-report.js",
     "package:submission": "node scripts/package-submission.js"
   },

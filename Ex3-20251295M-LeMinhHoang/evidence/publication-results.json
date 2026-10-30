@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-10-30T13:58:05.349Z",
+  "repository": {
+    "url": "https://github.com/macLeHoang/CNWeb",
+    "branch": "main",
+    "commit": "6850ce3e3b68680dcc34142f1973f505d8b270e4",
+    "pushed": true
+  },
+  "workflows": [
+    {
+      "name": "Ex3 RBAC checks",
+      "status": "completed",
+      "conclusion": "success",
+      "commit": "6850ce3e3b68680dcc34142f1973f505d8b270e4",
+      "url": "https://github.com/macLeHoang/CNWeb/actions/runs/41065593328"
+    },
+    {
+      "name": "pages build and deployment",
+      "status": "completed",
+      "conclusion": "success",
+      "commit": "6850ce3e3b68680dcc34142f1973f505d8b270e4",
+      "url": "https://github.com/macLeHoang/CNWeb/actions/runs/41065591196"
+    }
+  ],
+  "frontend": {
+    "url": "https://maclehoang.github.io/CNWeb/Ex3-20251295M-LeMinhHoang/frontend/",
+    "status": 200,
+    "apiBase": "http://localhost:3001/api/v1",
+    "staticPublished": true,
+    "apiStillLocal": true
+  },
+  "backendVerified": false,
+  "note": "Public GitHub and Pages checked directly. No Render/Atlas account access; no online backend is claimed."
+}

@@ -11,8 +11,9 @@ const evidence = path.join(root, "evidence");
 const baseName = "Ex3-RBAC-20251295M-LeMinhHoang";
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const json = (name) => JSON.parse(read(`evidence/${name}`));
+const publication = fs.existsSync(path.join(evidence, "publication-results.json")) ? json("publication-results.json") : null;
 const git = (...args) => execFileSync("git", ["-c", `safe.directory=${workspace.replace(/\\/g, "/")}`, ...args], { cwd: workspace, encoding: "utf8" }).trim();
-const commit = git("rev-parse", "HEAD");
+const commit = publication?.repository?.commit || git("rev-parse", "HEAD");
 const logs = git("log", "--format=%h|%ad|%s", "--date=short", "--", "Ex3-20251295M-LeMinhHoang").split("\n").filter(Boolean).map((line) => line.split("|"));
 const backend = json("backend-results.json");
 const postman = json("postman-results.json");
@@ -69,7 +70,7 @@ function populate(questions) {
     ["Giảng viên", "Chưa được cung cấp."], ["Thời điểm tạo báo cáo", timestamp],
   ]);
   h("Bản local với dữ liệu giả lập", 2);
-  p("Báo cáo được AI tổng hợp từ mã nguồn, kết quả kiểm thử và ảnh chụp thực tế ở localhost theo yêu cầu người dùng. Chưa triển khai online, chưa có ảnh DevTools/Atlas/Render. Không phải bản xác nhận hoàn thành toàn bộ tiêu chí nộp bài. Mục 8 ghi dữ kiện kỹ thuật để sinh viên tự phân tích; không thay lời tự thuật hoặc câu trả lời cá nhân của sinh viên.");
+  p("Báo cáo được AI tổng hợp từ mã nguồn, kết quả kiểm thử và ảnh chụp thực tế ở localhost theo yêu cầu người dùng. Mã nguồn đã push GitHub; GitHub Actions và frontend GitHub Pages đã được xác minh thành công. Backend online chưa xác minh, frontend còn trỏ API localhost và chưa có ảnh DevTools/Atlas/Render. Đây chưa phải bản xác nhận hoàn thành toàn bộ tiêu chí nộp bài. Mục 8 ghi dữ kiện kỹ thuật để sinh viên tự phân tích.");
 
   newPage("MỤC LỤC");
   p("Giữ cấu trúc mục 1–10 và các câu hỏi của template. Số trang dưới đây là các trang nội dung của bản PDF được tạo cùng báo cáo.");
@@ -79,10 +80,11 @@ function populate(questions) {
   newPage("1. Thông tin nộp bài");
   h("1.1. Đường dẫn");
   table(["Hạng mục", "Địa chỉ / trạng thái"], [
-    ["Repository", "https://github.com/macLeHoang/CNWeb — chưa push: git push --dry-run xác nhận máy chưa đăng nhập GitHub."],
+    ["Repository", "https://github.com/macLeHoang/CNWeb — đã push và xác minh bằng API GitHub."],
     ["Commit mã nguồn đối chiếu", commit],
     ["Frontend local", "http://127.0.0.1:5500/"], ["Backend local", "http://127.0.0.1:3001/api/v1"],
-    ["Frontend / Backend online", "Chưa triển khai. Chưa có URL backend được xác nhận."],
+    ["Frontend online", publication?.frontend?.url || "Chưa được xác minh"],
+    ["Backend online", "Chưa có URL backend được xác nhận; API_BASE của frontend vẫn là localhost."],
     ["Postman", "postman/Ex3-RBAC-T01-T24.postman_collection.json"], ["Video demo", "Không thực hiện (không bắt buộc)."],
   ]);
   h("1.2. Tài khoản để giảng viên kiểm tra trên bản online");
@@ -93,14 +95,14 @@ function populate(questions) {
   ]);
   h("1.3. Môi trường");
   const pkg = JSON.parse(read("backend/package.json"));
-  table(["Thành phần", "Phiên bản / cách chạy"], [["Node.js", process.version], ["Express / Mongoose", `${pkg.dependencies.express} / ${pkg.dependencies.mongoose}; phiên bản khóa trong package-lock.json`], ["Database", "MongoDB local qua mongodb-memory-server; dữ liệu demo lưu dưới backend/.runtime/mongo"], ["Frontend", "React 18 CDN, Axios CDN, Babel; HTTP local port 5500"], ["Backend", "Express local port 3001; Render chưa được kết nối"]]);
+  table(["Thành phần", "Phiên bản / cách chạy"], [["Node.js", process.version], ["Express / Mongoose", `${pkg.dependencies.express} / ${pkg.dependencies.mongoose}; phiên bản khóa trong package-lock.json`], ["Database", "MongoDB local qua mongodb-memory-server; dữ liệu demo lưu dưới backend/.runtime/mongo"], ["Frontend", "React 18 CDN, Axios CDN, Babel; local port 5500 và GitHub Pages HTTP 200"], ["Backend", "Express local port 3001; dịch vụ Render online chưa xác minh"]]);
 
   newPage("2. Tổng quan kết quả");
   h("2.1. Bảng hoàn thành chức năng");
   const functions = ["Đăng nhập POST /auth/tokens, GET /me", "Middleware authenticate và requirePermission", "GET /users tìm kiếm/lọc/sort/phân trang", "POST /users, allow-list, mật khẩu mạnh", "PATCH /users và khóa/mở khóa", "DELETE /users xóa mềm", "Gán/gỡ vai trò idempotent, chống leo thang", "CRUD vai trò, thay quyền, bảo vệ role", "Danh mục quyền và quyền của vai trò", "Response/mã lỗi thống nhất", "Frontend đăng nhập và interceptor", "Hiển thị theo quyền", "Trang Người dùng và các modal", "Trang Vai trò và modal", "Responsive dưới 768px", "Triển khai online", "Phần mở rộng", "Dữ liệu người thật trong seed"];
   table(["#", "Chức năng", "Trạng thái"], functions.map((text, index) => [index + 1, text, index < 15 ? "Đã kiểm tra local" : index === 16 ? "Không làm, ngoài phạm vi đã chốt" : index === 17 ? "Giả lập theo yêu cầu; chưa đạt tiêu chí dữ liệu thật" : "Chưa thực hiện"]));
   h("2.2. Tóm tắt (5–8 câu)");
-  p(`Ứng dụng hiện có 18 endpoint REST và frontend React cho quản lý người dùng, vai trò và hồ sơ cá nhân. Quyền được hợp từ các vai trò và đọc lại trong từng request. Backend đạt ${backend.total} test tự động; Postman chạy bằng Newman đạt ${postman.assertions.total} assertion. Kiểm thử Chrome hoàn thành ${ui.passed.length} kịch bản giao diện, gồm bốn role và màn hình mobile. Seed có 25 tài khoản với dữ liệu giả lập được gắn rõ miền example.test. Hai thí nghiệm local xác nhận vai trò bị thu hồi có hiệu lực ngay và lỗi regex khi bỏ escape. Chưa có triển khai online, thông tin lớp/giảng viên, dữ liệu sinh viên thật hoặc nhận xét cá nhân do sinh viên xác nhận.`);
+  p(`Ứng dụng hiện có 18 endpoint REST và frontend React cho quản lý người dùng, vai trò và hồ sơ cá nhân. Quyền được hợp từ các vai trò và đọc lại trong từng request. Backend đạt ${backend.total} test tự động; Postman chạy bằng Newman đạt ${postman.assertions.total} assertion. Kiểm thử Chrome hoàn thành ${ui.passed.length} kịch bản giao diện, gồm bốn role và màn hình mobile. Seed có 25 tài khoản với dữ liệu giả lập được gắn rõ miền example.test. Mã nguồn đã được push, GitHub Actions thành công và frontend Pages trả HTTP 200. Backend online, thông tin lớp/giảng viên, dữ liệu sinh viên thật và nhận xét cá nhân vẫn cần hoàn thiện.`);
 
   newPage("3. Quá trình phát triển");
   h("3.1. Nhật ký thực hiện");
@@ -108,7 +110,8 @@ function populate(questions) {
   table(["Ngày", "Công việc", "Thời lượng", "Commit"], [...logs].reverse().slice(-8).map(([hash,date,message]) => [date, message, "Không đo", hash]));
   h("3.2. Lịch sử commit");
   code(logs.slice(0,12).map(([hash,date,message]) => `${hash} ${date} ${message}`).join("\n"));
-  p("Các commit mới chưa push vì GitHub yêu cầu đăng nhập (kiểm tra dry-run đã thực hiện). Permalink trong báo cáo được tạo từ commit local và chỉ truy cập được sau khi push đúng commit lên repository. Workflow .github/workflows/ex3-rbac.yml đã chuẩn bị để tự chạy kiểm thử sau khi push; chưa có kết quả GitHub Actions online.");
+  p(`Mã nguồn đối chiếu đã push tại commit ${commit}. Kết quả GitHub Actions được truy vấn từ API công khai và lưu trong evidence/publication-results.json. Cả workflow Ex3 RBAC checks và pages build and deployment đều đã hoàn thành thành công cho commit được ghi trong file bằng chứng.`);
+  for (const workflow of publication?.workflows || []) p(`${workflow.name}: ${workflow.conclusion} — ${workflow.url}`);
   h("3.3. Cấu trúc thư mục thực tế");
   code("backend/\n  app.js, server.js, seed.js, seed-data.js\n  models/{Permission,Role,User}.js\n  middleware/auth.js\n  routes/{auth,users,roles,permissions}.js\n  utils/{http,rbac}.js\n  scripts/{demo,verify-local,experiments,record-tests,build-report}.js\n  test/{api,seed}.test.js\nfrontend/index.html\npostman/Ex3-RBAC-T01-T24.postman_collection.json\nevidence/\nrender.yaml, README.md, AI-LOG.md");
 
@@ -137,11 +140,11 @@ function populate(questions) {
 
   newPage("5. Triển khai online");
   h("5.1. Lựa chọn nền tảng");
-  p("Kiến trúc đã chọn: GitHub Pages cho frontend tĩnh, Render cho backend Node và MongoDB Atlas cho CSDL. Chưa tạo tài nguyên hoặc đo giới hạn gói host trong phiên này. File render.yaml và các lệnh build/start đã được chuẩn bị. Không tuyên bố đã deploy khi chưa có URL hoặc trạng thái trả về từ dịch vụ.");
+  p("Kiến trúc đã chọn: GitHub Pages cho frontend tĩnh, Render cho backend Node và MongoDB Atlas cho CSDL. Frontend đã được xuất bản trên GitHub Pages và xác minh HTTP 200. Render và MongoDB Atlas đã được cài plugin theo kiểm tra danh mục, nhưng cuộc trò chuyện cũ chưa nhận công cụ để xác minh tài nguyên hoặc backend online. File render.yaml và các lệnh build/start đã được chuẩn bị. Frontend hiện vẫn trỏ API localhost, nên chưa thể coi là ứng dụng online hoàn chỉnh.");
   h("5.2. Biến môi trường trên host");
   table(["Tên biến", "Mục đích", "Local / host"], [["MONGODB_URI", "Chuỗi kết nối MongoDB", "Demo dùng MongoDB local; host cần Atlas URI riêng"], ["JWT_SECRET", "Ký/kiểm tra JWT", "Demo sinh ngẫu nhiên mỗi lần chạy; host lưu secret riêng"], ["ACCESS_TOKEN_TTL", "Thời hạn access token", "3600 giây trong cấu hình mẫu"], ["CORS_ORIGINS", "Danh sách origin được đọc response", "Local cho localhost/127.0.0.1; host cho origin Pages"], ["PORT", "Port HTTP server", "Local 3001; host cung cấp"], ["NODE_ENV", "Môi trường runtime", "production trên Render"]]);
   h("5.3. Các bước triển khai");
-  p("Các bước đã thực hiện: cài npm dependencies; khởi động demo MongoDB/Express/frontend; chạy test; tạo render.yaml. Các bước chưa thực hiện: kết nối GitHub/Render/Atlas, tạo database user và IP access list, cấu hình secret trên host, push commit, deploy và đổi API_BASE. Đây là kế hoạch còn lại, không phải nhật ký deploy đã thành công.");
+  p("Các bước đã thực hiện: cài npm dependencies; chạy demo local và kiểm thử; tạo render.yaml; push GitHub; xác minh CI thành công và frontend Pages HTTP 200. Các bước còn lại: dùng công cụ Render/Atlas trong phiên mới để xác minh hoặc tạo database user/IP access list, cấu hình secret trên host, deploy backend và đổi API_BASE. Chưa xác nhận hoàn tất các bước còn lại.");
   p("Hình S01. Chưa có ảnh dashboard Render vì chưa deploy. Hình S02. Chưa có ảnh Atlas vì chưa có cluster online. Không tạo ảnh thay thế giả.");
 
   newPage("5.4. Sự cố khi triển khai");
