@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-29T17:15:18.243Z",
+  "at": "2026-10-30T13:30:17.314Z",
   "environment": "Isolated LOCAL database; synthetic data",
   "trace": {
     "request": "PUT /users/:userId/roles/:roleId",

@@ -105,9 +105,9 @@ function populate(questions) {
   newPage("3. Quá trình phát triển");
   h("3.1. Nhật ký thực hiện");
   p("Nhật ký dưới đây dựa trên thời điểm commit, không suy diễn số giờ làm việc. Không có dữ liệu theo dõi thời gian nên cột thời lượng ghi 'Không đo'.");
-  table(["Ngày", "Công việc", "Thời lượng", "Commit"], [...logs].reverse().slice(-12).map(([hash,date,message]) => [date, message, "Không đo", hash]));
+  table(["Ngày", "Công việc", "Thời lượng", "Commit"], [...logs].reverse().slice(-8).map(([hash,date,message]) => [date, message, "Không đo", hash]));
   h("3.2. Lịch sử commit");
-  code(logs.map(([hash,date,message]) => `${hash} ${date} ${message}`).join("\n"));
+  code(logs.slice(0,12).map(([hash,date,message]) => `${hash} ${date} ${message}`).join("\n"));
   p("Các commit mới chưa push vì GitHub yêu cầu đăng nhập (kiểm tra dry-run đã thực hiện). Permalink trong báo cáo được tạo từ commit local và chỉ truy cập được sau khi push đúng commit lên repository. Workflow .github/workflows/ex3-rbac.yml đã chuẩn bị để tự chạy kiểm thử sau khi push; chưa có kết quả GitHub Actions online.");
   h("3.3. Cấu trúc thư mục thực tế");
   code("backend/\n  app.js, server.js, seed.js, seed-data.js\n  models/{Permission,Role,User}.js\n  middleware/auth.js\n  routes/{auth,users,roles,permissions}.js\n  utils/{http,rbac}.js\n  scripts/{demo,verify-local,experiments,record-tests,build-report}.js\n  test/{api,seed}.test.js\nfrontend/index.html\npostman/Ex3-RBAC-T01-T24.postman_collection.json\nevidence/\nrender.yaml, README.md, AI-LOG.md");

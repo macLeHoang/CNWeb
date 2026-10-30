@@ -20,6 +20,11 @@ async function main() {
     }
   }
   visit(root);
+  const workflowPath = path.resolve(root, "../.github/workflows/ex3-rbac.yml");
+  if (fs.existsSync(workflowPath)) {
+    zip.file(".github/workflows/ex3-rbac.yml", fs.readFileSync(workflowPath));
+    included.push(".github/workflows/ex3-rbac.yml");
+  }
   const buffer = await zip.generateAsync({type:"nodebuffer",compression:"DEFLATE",compressionOptions:{level:6}});
   const filename = "Ex3-20251295M-LeMinhHoang-Local.zip";
   fs.writeFileSync(path.join(root,filename),buffer);
